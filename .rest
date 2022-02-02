@@ -1,0 +1,63 @@
+###########
+POST http://localhost:4000/user/register
+Content-Type: application/json
+
+{
+"firstName":"deepak",
+"lastName":"sahu",
+"email":"deepaksahu7201@gmail.com",
+"Password":"deepak"
+}
+
+###########
+POST http://localhost:4000/api/user/login
+Content-Type: application/json
+
+{
+"email":"deepaksahu7201@gmail.com",
+"password":"deepak"
+}
+
+###########
+get http://localhost:4000/user/getUser
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWE4YzBlMWJiMjk1MjZhZmE1ZDA4MTQiLCJpYXQiOjE2Mzg0NTA0MTd9.MZRqT-jXeFKazCmmYvrKz-YEa21lsrbgmwDbygMRgbM
+
+###########
+get http://localhost:4000/api/agencies/getAllAgencies/1/1/20
+
+###########
+get http://localhost:4000/api/agencies/getAgencyById/618cad3666093b08653f282b
+
+###########
+get http://localhost:4000/api/clients/getAllClients/1/20
+
+###########
+get http://localhost:4000/api/clients/getProjectByClientId/619c9f36ccfff254bdf702a8
+
+
+
+###########
+get http://localhost:4000/api/clients/getDetailsForRequestedDeveloper/61af1325678d7c085f8295e4
+
+
+###########
+get http://localhost:4000/api/clients/getProjectDetails/61a503583f3a6a18ab6b5857
+
+ 
+###########
+get http://localhost:4000/api/clients/getAllRequestForDeveloper/6173e7a6c689aa6e0b74d5e8
+
+
+###########
+get http://localhost:4000/api/agencies/getProjectAgencyById/618e4fe4bea2c21bab501e99
+
+###########
+get http://localhost:4000/api/agencies/getAllRequestForDeveloper/618cda7266093b08653f2aaa
+
+###########
+get http://localhost:4000/api/agencies/getAgencyDeveloper/618cda7266093b08653f2aaa
+
+###########
+get http://localhost:4000/api/clients/SearchClient/dubeymohit037
+
+
