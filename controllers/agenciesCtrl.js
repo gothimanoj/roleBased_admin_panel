@@ -285,7 +285,7 @@ const agenciesCtrl = {
       const { id } = req.params;
       const data = await Developer.find(
         { agencyId: mongoose.Types.ObjectId(id) },
-        "isRemoteDeveloper developerExperience developerPriceRange isDeveloperActive firstName lastName developerDesignation developerTechnologies"
+        "isRemoteDeveloper developerExperience developerPriceRange isDeveloperActive firstName lastName developerDesignation developerTechnologies developerDocuments"
       ).populate({
         path: "developerTechnologies",
         select: {
