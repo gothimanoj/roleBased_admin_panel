@@ -23,13 +23,13 @@ get http://localhost:4000/user/getUser
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWE4YzBlMWJiMjk1MjZhZmE1ZDA4MTQiLCJpYXQiOjE2Mzg0NTA0MTd9.MZRqT-jXeFKazCmmYvrKz-YEa21lsrbgmwDbygMRgbM
 
 ###########
-get http://localhost:4000/api/agencies/getAllAgencies/1/1/20
+get http://13.234.120.7:4000/api/agencies/getAllAgencies/1/1/20
 
 ###########
-get http://localhost:4000/api/agencies/getAgencyById/618cad3666093b08653f282b
+get http://13.234.120.7/backend/api/agencies/getAgencyById/618cad3666093b08653f282b
 
 ###########
-get http://localhost:4000/api/clients/getAllClients/1/20
+get http://localhost:5000/api/clients/getAllClients/1/20
 
 ###########
 get http://localhost:4000/api/clients/getProjectByClientId/619c9f36ccfff254bdf702a8
