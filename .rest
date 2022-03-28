@@ -20,7 +20,7 @@ Content-Type: application/json
 
 ###########
 get http://localhost:4000/user/getUser
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWE4YzBlMWJiMjk1MjZhZmE1ZDA4MTQiLCJpYXQiOjE2Mzg0NTA0MTd9.MZRqT-jXeFKazCmmYvrKz-YEa21lsrbgmwDbygMRgbM
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWE5ZGMwZDBlMDBjNDg2OTg1ZDEzY2UiLCJpYXQiOjE2NDgwMzY0OTF9.CTbn6yl8L9B_d2grhLI5cFnByH2l4Aw8ZEi2C0CZNpw
 
 ###########
 get http://13.234.120.7:4000/api/agencies/getAllAgencies/1/1/20
@@ -55,7 +55,9 @@ get http://localhost:4000/api/agencies/getProjectAgencyById/618e4fe4bea2c21bab50
 get http://localhost:4000/api/agencies/getAllRequestForDeveloper/618cda7266093b08653f2aaa
 
 ###########
-get http://localhost:4000/api/agencies/getAgencyDeveloper/618cda7266093b08653f2aaa
+get http://localhost:4000/api/agencies/getAgencyDeveloper/622c352f5a288e3e4707417a
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWE5ZGMwZDBlMDBjNDg2OTg1ZDEzY2UiLCJpYXQiOjE2NDgwMzY0OTF9.CTbn6yl8L9B_d2grhLI5cFnByH2l4Aw8ZEi2C0CZNpw
+
 
 ###########
 get http://localhost:4000/api/clients/SearchClient/dubeymohit037

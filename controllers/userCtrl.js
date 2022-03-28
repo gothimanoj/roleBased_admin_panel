@@ -2,6 +2,7 @@ require("dotenv").config();
 const Users = require("../models/userModel");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const client = require("../models/clientsModel");
 const userCtrl = {
   register: async (req, res) => {
     try {
@@ -64,7 +65,9 @@ const userCtrl = {
           .json({ success: false, error: "User does not exist" });
       }
       const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRETKEY);
-      return res.json({ success: true, token });
+      const adminClient = await client.find({ userEmail: "info@sourcebae.com" });
+      const clientId = adminClient[0]._id
+      return res.json({ success: true, token, clientId });
     } catch (error) {
       res.status(401).json({ success: false, error: error.message });
     }
