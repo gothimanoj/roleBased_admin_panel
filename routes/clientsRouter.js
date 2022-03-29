@@ -17,4 +17,5 @@ router.get(
 );
 router.get("/SearchClient/:key", auth, clientsCtrl.getSearchClient);
 
+
 module.exports = router;
