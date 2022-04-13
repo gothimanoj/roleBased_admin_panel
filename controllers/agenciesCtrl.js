@@ -10,33 +10,38 @@ const agenciesCtrl = {
       const { page, tab, limit } = req.params;
       const options = {
         page: +page || 1,
-        limit: +limit || 20
-      };  
+        limit: +limit || 20,
+      };
 
       if (tab == 1) {
         const agencies = Agency.aggregate([
           {
-            $lookup:
-              {
-                from: 'hiredevelopers',
-                let:{"id":"$_id"},
-                 pipeline: [
-                   {$unwind:{path:"$agenciesMatched"}},
-                   {$match:{$expr:{$eq:["$agenciesMatched.agencyId","$$id"]}}},
-                    { $sort : { 'agenciesMatched.updatedAt' : -1 } },
-                    {
-                      $addFields: {
-                        updatedAt1:"$agenciesMatched.updatedAt"
-                      }
-                    },
-                    {$project: {
-                      _id:0,
-                      updatedAt1:1
-                    }},
-                    { $limit : 1 }
-                  ],
-                as: 'hiredevelopers'
-            }
+            $lookup: {
+              from: "hiredevelopers",
+              let: { id: "$_id" },
+              pipeline: [
+                { $unwind: { path: "$agenciesMatched" } },
+                {
+                  $match: {
+                    $expr: { $eq: ["$agenciesMatched.agencyId", "$$id"] },
+                  },
+                },
+                { $sort: { "agenciesMatched.updatedAt": -1 } },
+                {
+                  $addFields: {
+                    updatedAt1: "$agenciesMatched.updatedAt",
+                  },
+                },
+                {
+                  $project: {
+                    _id: 0,
+                    updatedAt1: 1,
+                  },
+                },
+                { $limit: 1 },
+              ],
+              as: "hiredevelopers",
+            },
           },
           {
             $lookup: {
@@ -50,37 +55,42 @@ const agenciesCtrl = {
                     updatedAt1: "$updatedAt",
                   },
                 },
-                {$project: {
-                  _id:0,
-                  updatedAt1:1
-                }},
-                { $limit : 1 }
+                {
+                  $project: {
+                    _id: 0,
+                    updatedAt1: 1,
+                  },
+                },
+                { $limit: 1 },
               ],
               as: "AgenciesDevelopers",
             },
           },
           {
-            $match: {$or:[
-             { hiredevelopers: { 
-                $gte: [
-                  {
-                    $size: '$hiredevelopers'
+            $match: {
+              $or: [
+                {
+                  hiredevelopers: {
+                    $gte: [
+                      {
+                        $size: "$hiredevelopers",
+                      },
+                      0,
+                    ],
                   },
-                  0
-                ]
-              }},{
-                AgenciesDevelopers: { 
-                  $gte: [
-                    {
-                      $size: '$AgenciesDevelopers'
-                    },
-                    0
-                  ]
-                }
-              }
-            ]
-              
-            }
+                },
+                {
+                  AgenciesDevelopers: {
+                    $gte: [
+                      {
+                        $size: "$AgenciesDevelopers",
+                      },
+                      0,
+                    ],
+                  },
+                },
+              ],
+            },
           },
           {
             $project: {
@@ -95,8 +105,8 @@ const agenciesCtrl = {
               incorporationDate: 1,
               agencyTeamSize: 1,
               createdAt: 1,
-              AgenciesDevelopers:1,
-              hiredevelopers:1
+              AgenciesDevelopers: 1,
+              hiredevelopers: 1,
             },
           },
         ]);
@@ -198,6 +208,33 @@ const agenciesCtrl = {
           options
         );
         console.log("all rejectedAgency");
+        return res.status(200).json({ success: true, Agencies });
+      }
+
+      if (tab == 5) {
+        const aggregateRejectedAgency = Agency.aggregate([
+          {
+            $project:
+             {
+              _id: 1,
+              isAgencyVerified: 1,
+              isUserEmailVerified: 1,
+              verificationMessage: 1,
+              agencyName: 1,
+              ownerName: 1,
+              agencyEmail: 1,
+              agencyPhone: 1,
+              agencyLogo: 1,
+              incorporationDate: 1,
+              agencyTeamSize: 1,
+              createdAt: 1,
+             },
+          },
+        ]);
+        const Agencies = await Agency.aggregatePaginate(
+          aggregateRejectedAgency,
+          options
+        );
         return res.status(200).json({ success: true, Agencies });
       }
     } catch (error) {
