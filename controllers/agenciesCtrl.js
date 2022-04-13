@@ -211,7 +211,7 @@ const agenciesCtrl = {
         return res.status(200).json({ success: true, Agencies });
       }
 
-      if (tab == 5) {
+      if (tab == 6) {
         const aggregateRejectedAgency = Agency.aggregate([
           {
             $project:
