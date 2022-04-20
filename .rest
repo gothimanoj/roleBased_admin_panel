@@ -1,29 +1,31 @@
 ###########
-POST http://localhost:4000/user/register
+POST http://localhost:3000/api/user/register
 Content-Type: application/json
 
 {
-"firstName":"deepak",
-"lastName":"sahu",
-"email":"deepaksahu7201@gmail.com",
-"Password":"deepak"
+"firstName":"Shethink",
+"lastName":"Admin",
+"email":"Admin@gmail.com",
+"Password":"ShethinkAdmin"
 }
 
 ###########
-POST http://localhost:4000/api/user/login
+POST http://localhost:3000/api/user/login
 Content-Type: application/json
 
 {
-"email":"deepaksahu7201@gmail.com",
-"password":"deepak"
+   "email":"Admin@gmail.com",
+   "password":"ShethinkAdmin"
 }
 
 ###########
 get http://localhost:4000/user/getUser
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWE5ZGMwZDBlMDBjNDg2OTg1ZDEzY2UiLCJpYXQiOjE2NDgwMzY0OTF9.CTbn6yl8L9B_d2grhLI5cFnByH2l4Aw8ZEi2C0CZNpw
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjU1NGY0NzdkZGMyNjk5Mjc5MGEwZjUiLCJpYXQiOjE2NTA0NjIyMzZ9.UuMDvFfzqvvPSmAN5gmWwoGOhNw6DZXYkQfz6DJkumY
 
 ###########
-get http://13.234.120.7:4000/api/agencies/getAllAgencies/1/1/20
+get http://localhost:3000/api/agencies/getAllAgencies/6/1/63
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjU1NGY0NzdkZGMyNjk5Mjc5MGEwZjUiLCJpYXQiOjE2NTA0NjAyMzB9.UOy8iPv4zQOM9YFJRtPE1dnFe-F2wtmJ0nvopK5jAxY
+
 
 ###########
 get http://13.234.120.7/backend/api/agencies/getAgencyById/618cad3666093b08653f282b
@@ -61,5 +63,23 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWE5ZGMwZ
 
 ###########
 get http://localhost:4000/api/clients/SearchClient/dubeymohit037
+
+
+
+
+###########
+get http://localhost:4000/api/hiredeveloper/getRequirement
+
+###########
+get http://localhost:4000/api/hiredeveloper/singleRequirement/622c3a4b5a288e3e470741b4
+
+
+
+###########
+get http://localhost:3000/api/agencies/SearchAgency/Wingstech
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjU1NGY0NzdkZGMyNjk5Mjc5MGEwZjUiLCJpYXQiOjE2NTA0NjIyMzZ9.UuMDvFfzqvvPSmAN5gmWwoGOhNw6DZXYkQfz6DJkumY
+
+
+
 
 

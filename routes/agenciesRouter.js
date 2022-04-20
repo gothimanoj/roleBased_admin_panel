@@ -24,4 +24,6 @@ router.get(
 
 router.get("/getAgencyDeveloper/:id", auth, agenciesCtrl.getAgencyDeveloper);
 
+router.get("/SearchAgency/:key", auth, agenciesCtrl.getSearchAgencies);
+
 module.exports = router;

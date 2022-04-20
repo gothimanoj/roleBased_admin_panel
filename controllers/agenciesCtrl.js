@@ -214,8 +214,15 @@ const agenciesCtrl = {
       if (tab == 6) {
         const aggregateRejectedAgency = Agency.aggregate([
           {
-            $project:
-             {
+            $lookup: {
+              from: "developers",
+              localField: "_id",
+              foreignField: "agencyId",
+              as: "developers",
+            },
+          },
+          {
+            $project: {
               _id: 1,
               isAgencyVerified: 1,
               isUserEmailVerified: 1,
@@ -228,7 +235,8 @@ const agenciesCtrl = {
               incorporationDate: 1,
               agencyTeamSize: 1,
               createdAt: 1,
-             },
+              developersCount: { $size: "$developers" },
+            },
           },
         ]);
         const Agencies = await Agency.aggregatePaginate(
@@ -392,6 +400,44 @@ const agenciesCtrl = {
     } catch (error) {
       return res.status(500).json({ msg: error.message });
     }
+  },
+
+  getSearchAgencies: async (req, res) => {
+    try {
+      let Agencies =await Agency.aggregate([
+        {
+          $match: {
+            agencyName: { $regex: req.params.key, $options: "i" },
+          },
+        },
+        {
+          $lookup: {
+            from: "developers",
+            localField: "_id",
+            foreignField: "agencyId",
+            as: "developers",
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            isAgencyVerified: 1,
+            isUserEmailVerified: 1,
+            verificationMessage: 1,
+            agencyName: 1,
+            ownerName: 1,
+            agencyEmail: 1,
+            agencyPhone: 1,
+            agencyLogo: 1,
+            incorporationDate: 1,
+            agencyTeamSize: 1,
+            createdAt: 1,
+            developersCount: { $size: "$developers" },
+          },
+        },
+      ]);
+      return res.status(200).json({ success: true, Agencies });
+    } catch (error) {}
   },
 };
 
