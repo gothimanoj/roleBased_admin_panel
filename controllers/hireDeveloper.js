@@ -93,6 +93,25 @@ const hireDeveloper = {
           },
         },
         {
+          $lookup: {
+            from: "technologies",
+            let: { id: "$developerTechnologiesRequired" },
+            pipeline: [
+              {
+                $match:{
+                 $expr:{ $in:["$_id","$$id"]}
+                }
+              },
+              {
+                $project:{
+                  technologyName:1
+                }
+              }
+            ],
+            as: "developerTechnologiesRequired",
+          },
+        },
+        {
           $unwind: {
             path: "$agency",
           },
@@ -107,6 +126,15 @@ const hireDeveloper = {
             agency: 1,
             developer: 1,
             developersShared: 1,
+            requirementName: 1,
+            jobDescription: 1,
+            developerRolesRequired: 1,
+            numberOfResourcesRequired: 1,
+            developerExperienceRequired: 1,
+            averageBudget: 1,
+            developerTechnologiesRequired: 1,
+            contractPeriod: 1,
+            expectedStartTime: 1,
           },
         },
       ]);
