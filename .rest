@@ -10,7 +10,7 @@ Content-Type: application/json
 }
 
 ###########
-POST http://localhost:3000/api/user/login
+POST http://localhost:4000/api/user/login
 Content-Type: application/json
 
 {
@@ -71,15 +71,18 @@ get http://localhost:4000/api/clients/SearchClient/dubeymohit037
 get http://localhost:4000/api/hiredeveloper/getRequirement
 
 ###########
-get http://localhost:4000/api/hiredeveloper/singleRequirement/622c3a4b5a288e3e470741b4
+get http://localhost:4000/api/hiredeveloper/singleRequirement/624abbfe371ed3162f599636
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjU1NGY0NzdkZGMyNjk5Mjc5MGEwZjUiLCJpYXQiOjE2NTA1MjU3MDJ9.XgnIFXJ5NwDgjdxqKYfgtKeq7iMQNnuL-IMoiU3AWfU
 
 
 
 ###########
 get http://localhost:3000/api/agencies/SearchAgency/Wingstech
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjU1NGY0NzdkZGMyNjk5Mjc5MGEwZjUiLCJpYXQiOjE2NTA0NjIyMzZ9.UuMDvFfzqvvPSmAN5gmWwoGOhNw6DZXYkQfz6DJkumY
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjU1NGVjYmI2NDE5YTk3YTU4ZjIwNzMiLCJpYXQiOjE2NTA2MTE1Njh9.pK0V_z1xjlEnYI2QrJoB9zZGuxlto0YG2U64Jxzi_yQ
 
 
-
+###########
+get http://localhost:4000/api/hiredeveloper/singleRequirementById/622c3a4b5a288e3e470741b4
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjU1NGVjYmI2NDE5YTk3YTU4ZjIwNzMiLCJpYXQiOjE2NTA2MTE1Njh9.pK0V_z1xjlEnYI2QrJoB9zZGuxlto0YG2U64Jxzi_yQ
 
 

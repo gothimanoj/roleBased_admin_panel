@@ -9,4 +9,7 @@ router.get(
 );
 router.get("/singleRequirement/:id", auth, hireDeveloper.singleRequirement);
 
+
+router.get("/singleRequirementById/:id", auth, hireDeveloper.singleRequirementById);
+
 module.exports = router;

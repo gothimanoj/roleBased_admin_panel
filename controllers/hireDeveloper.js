@@ -98,15 +98,15 @@ const hireDeveloper = {
             let: { id: "$developerTechnologiesRequired" },
             pipeline: [
               {
-                $match:{
-                 $expr:{ $in:["$_id","$$id"]}
-                }
+                $match: {
+                  $expr: { $in: ["$_id", "$$id"] },
+                },
               },
               {
-                $project:{
-                  technologyName:1
-                }
-              }
+                $project: {
+                  technologyName: 1,
+                },
+              },
             ],
             as: "developerTechnologiesRequired",
           },
@@ -140,6 +140,56 @@ const hireDeveloper = {
       ]);
 
       return res.json({ success: true, singleRequirement });
+    } catch (error) {
+      return res.status(500).json({ msg: error.message });
+    }
+  },
+
+  singleRequirementById: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const singleRequirementById = await HireDeveloper.aggregate([
+        {
+          $match: {
+            _id: mongoose.Types.ObjectId(id),
+          },
+        },
+        {
+          $lookup: {
+            from: "technologies",
+            let: { id: "$developerTechnologiesRequired" },
+            pipeline: [
+              {
+                $match: {
+                  $expr: { $in: ["$_id", "$$id"] },
+                },
+              },
+              {
+                $project: {
+                  technologyName: 1,
+                },
+              },
+            ],
+            as: "developerTechnologiesRequired",
+          },
+        },
+        {
+          $project: {
+            requirementName: 1,
+            jobDescription: 1,
+            developerRolesRequired: 1,
+            numberOfResourcesRequired: 1,
+            developerExperienceRequired: 1,
+            averageBudget: 1,
+            developerTechnologiesRequired: 1,
+            contractPeriod: 1,
+            expectedStartTime: 1,
+          },
+        },
+      ]);
+
+
+      return res.json({ success: true, singleRequirementById });
     } catch (error) {
       return res.status(500).json({ msg: error.message });
     }
