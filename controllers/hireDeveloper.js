@@ -183,13 +183,62 @@ const hireDeveloper = {
             averageBudget: 1,
             developerTechnologiesRequired: 1,
             contractPeriod: 1,
-            expectedStartTime: 1,
+            expectedStartDate: 1,
           },
         },
       ]);
 
-
       return res.json({ success: true, singleRequirementById });
+    } catch (error) {
+      return res.status(500).json({ msg: error.message });
+    }
+  },
+
+  updateSingleRequirementById: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const {
+        requirementName,
+        developerRolesRequired,
+        numberOfResourcesRequired,
+        developerTechnologiesRequired,
+        developerExperienceRequired,
+        preferredBillingMode,
+        averageBudget,
+        jobDescription,
+        expectedStartTime,
+        contractPeriod,
+        clientId,
+      } = req.body;
+      const singleRequirementById = await HireDeveloper.findOne(
+        mongoose.Types.ObjectId(id)
+      );
+
+      singleRequirementById.requirementName =
+        requirementName || singleRequirementById.requirementName;
+      singleRequirementById.developerRolesRequired =
+        developerRolesRequired || singleRequirementById.developerRolesRequired;
+      singleRequirementById.numberOfResourcesRequired =
+        numberOfResourcesRequired || singleRequirementById.requirementName;
+      singleRequirementById.developerTechnologiesRequired =
+        developerTechnologiesRequired || singleRequirementById.requirementName;
+      singleRequirementById.developerExperienceRequired =
+        developerExperienceRequired ||
+        singleRequirementById.developerExperienceRequired;
+      singleRequirementById.preferredBillingMode =
+        preferredBillingMode || singleRequirementById.preferredBillingMode;
+      singleRequirementById.jobDescription =
+      jobDescription || singleRequirementById.jobDescription;
+      singleRequirementById.averageBudget =
+        averageBudget || averageBudget.averageBudget;
+      singleRequirementById.expectedStartDate =
+        expectedStartTime?.toString() ||  singleRequirementById.expectedStartDate;
+      singleRequirementById.contractPeriod =
+      contractPeriod || singleRequirementById.contractPeriod;
+      singleRequirementById.clientId = clientId || clientId.requirementName;
+     console.log(singleRequirementById.jobDescription);
+     await singleRequirementById.save();
+      return res.json({ success: true });
     } catch (error) {
       return res.status(500).json({ msg: error.message });
     }

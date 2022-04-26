@@ -50,14 +50,16 @@ const hireDeveloperSchema = new mongoose.Schema(
             },
         ],
         developerExperienceRequired: {
-            type: String,
+            min: Number,
+      max: Number,
         },
         preferredBillingMode: {
             type: String,
             enum: DEVELOPER_BILLING_MODE,
         },
         averageBudget: {
-            type: String,
+            min: Number,
+            max: Number,
         },
         expectedStartDate: {
             type: String,
@@ -65,6 +67,9 @@ const hireDeveloperSchema = new mongoose.Schema(
         contractPeriod: {
             type: String,
         },
+        jobDescription: {
+            type: String,
+          },
         agenciesMatched: [agenciesMatchedSchema],
     },
     {

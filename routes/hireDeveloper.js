@@ -11,5 +11,6 @@ router.get("/singleRequirement/:id", auth, hireDeveloper.singleRequirement);
 
 
 router.get("/singleRequirementById/:id", auth, hireDeveloper.singleRequirementById);
+router.patch("/updateSingleRequirementById/:id", auth, hireDeveloper.updateSingleRequirementById);
 
 module.exports = router;
