@@ -236,7 +236,6 @@ const hireDeveloper = {
       singleRequirementById.contractPeriod =
       contractPeriod || singleRequirementById.contractPeriod;
       singleRequirementById.clientId = clientId || clientId.requirementName;
-     console.log(singleRequirementById.jobDescription);
      await singleRequirementById.save();
       return res.json({ success: true });
     } catch (error) {

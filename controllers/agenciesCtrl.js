@@ -15,6 +15,15 @@ const agenciesCtrl = {
 
       if (tab == 1) {
         const agencies = Agency.aggregate([
+          ...(req.user.role == "User"
+            ? [
+                {
+                  $match: {
+                    assignedToUserId: mongoose.Types.ObjectId(req.user._id),
+                  },
+                },
+              ]
+            : []),
           {
             $lookup: {
               from: "hiredevelopers",
@@ -116,6 +125,15 @@ const agenciesCtrl = {
 
       if (tab == 2) {
         const agencies = Agency.aggregate([
+          ...(req.user.role == "User"
+            ? [
+                {
+                  $match: {
+                    assignedToUserId: mongoose.Types.ObjectId(req.user._id),
+                  },
+                },
+              ]
+            : []),
           {
             $match: { isAgencyVerified: true },
           },
@@ -147,6 +165,15 @@ const agenciesCtrl = {
 
       if (tab == 3) {
         const agencies = Agency.aggregate([
+          ...(req.user.role == "User"
+            ? [
+                {
+                  $match: {
+                    assignedToUserId: mongoose.Types.ObjectId(req.user._id),
+                  },
+                },
+              ]
+            : []),
           {
             $match: { isAgencyVerified: false },
           },
@@ -180,6 +207,15 @@ const agenciesCtrl = {
 
       if (tab == 4) {
         const aggregateRejectedAgency = Agency.aggregate([
+          ...(req.user.role == "User"
+            ? [
+                {
+                  $match: {
+                    assignedToUserId: mongoose.Types.ObjectId(req.user._id),
+                  },
+                },
+              ]
+            : []),
           {
             $match: { isAgencyVerified: false },
           },
@@ -213,12 +249,39 @@ const agenciesCtrl = {
 
       if (tab == 6) {
         const aggregateRejectedAgency = Agency.aggregate([
+          ...(req.user.role == "User"
+            ? [
+                {
+                  $match: {
+                    assignedToUserId: mongoose.Types.ObjectId(req.user._id),
+                  },
+                },
+              ]
+            : []),
           {
             $lookup: {
               from: "developers",
               localField: "_id",
               foreignField: "agencyId",
               as: "developers",
+            },
+          },{
+            
+             $lookup: {
+              from: "users",
+             let:{id:"$assignedToUserId"},
+             pipeline:[
+               {
+                 $match:{
+                   $expr:{$eq:["$_id","$$id"]}
+                 }
+               },{
+                 $project:{
+                  firstName:1
+                 }
+               }
+             ],
+              as: "assignedToUserId",
             },
           },
           {
@@ -236,9 +299,115 @@ const agenciesCtrl = {
               agencyTeamSize: 1,
               createdAt: 1,
               developersCount: { $size: "$developers" },
+              assignedToUserId:1
             },
           },
         ]);
+        const Agencies = await Agency.aggregatePaginate(
+          aggregateRejectedAgency,
+          options
+        );
+        return res.status(200).json({ success: true, Agencies });
+      }
+
+      if (tab == 8) {
+        const aggregateRejectedAgency = Agency.aggregate([
+          ...(req.user.role == "User"
+            ? [
+                {
+                  $lookup: {
+                    from: "requestfrodevelopers",
+                    let: { id: "$_id", userId: req.user._id },
+                    pipeline: [
+                      {
+                        $match: {
+                          $and: [
+                            { $expr: { $eq: ["$$id", "$agencyId"] } },
+                            { $expr: { $eq: ["$$userId", "$userId"] } },
+                          ],
+                        },
+                      },
+                    ],
+                    as: "checkingUser",
+                  },
+                },
+                {
+                  $addFields: {
+                    userRequested: { $size: "$checkingUser" },
+                  },
+                },
+                {
+                  $match: {
+                    userRequested: 0,
+                  },
+                },
+              ]
+            : []),
+          {
+            $match: { assignedToUserId: { $exists: false } },
+          },
+          {
+            $lookup: {
+              from: "requestfrodevelopers",
+              let: { id: "$_id" },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: { $eq: ["$$id", "$agencyId"] },
+                  },
+                },
+
+                {
+                  $lookup: {
+                    from: "users",
+                    let: { id: "$userId" },
+                    pipeline: [
+                      {
+                        $match: {
+                          $expr: { $eq: ["$$id", "$_id"] },
+                        },
+                      },
+                      {
+                        $project: {
+                          firstName: 1,
+                        },
+                      },
+                    ],
+                    as: "userId",
+                  },
+                },
+                {
+                  $unwind: "$userId",
+                },
+                {
+                  $project: {
+                    userId: 1,
+                  },
+                },
+              ],
+              as: "requestedByUser",
+            },
+          },
+          {
+            $project: {
+              _id: 1,
+              isAgencyVerified: 1,
+              isUserEmailVerified: 1,
+              verificationMessage: 1,
+              agencyName: 1,
+              ownerName: 1,
+              agencyEmail: 1,
+              agencyPhone: 1,
+              agencyLogo: 1,
+              incorporationDate: 1,
+              agencyTeamSize: 1,
+              createdAt: 1,
+              ...(req.user.role == "User" ? {} : { requestedByUser: 1 }),
+              userRequested: 1,
+            },
+          },
+        ]);
+
         const Agencies = await Agency.aggregatePaginate(
           aggregateRejectedAgency,
           options
@@ -404,7 +573,16 @@ const agenciesCtrl = {
 
   getSearchAgencies: async (req, res) => {
     try {
-      let Agencies =await Agency.aggregate([
+      let Agencies = await Agency.aggregate([
+        ...(req.user.role == "User"
+          ? [
+              {
+                $match: {
+                  assignedToUserId: mongoose.Types.ObjectId(req.user._id),
+                },
+              },
+            ]
+          : []),
         {
           $match: {
             agencyName: { $regex: req.params.key, $options: "i" },
@@ -438,6 +616,46 @@ const agenciesCtrl = {
       ]);
       return res.status(200).json({ success: true, Agencies });
     } catch (error) {}
+  },
+
+  addUserInAgency: async (req, res) => {
+    try {
+      let findAgency = await Agency.findOne({ _id: req.params.id });
+
+      const { userId } = req.body;
+
+      findAgency.assignedToUserId = userId || findAgency.assignedToUserId;
+      await findAgency.save();
+      return res
+        .status(200)
+        .json({ success: true, msg: "user assigned Successfully " });
+    } catch (error) {
+      return res.status(500).json({ msg: error.message });
+    }
+  },
+
+  getAllAgenciesName: async (req, res) => {
+    try {
+      const agencyName = await Agency.aggregate([
+        ...(req.user.role == "User"
+        ? [
+            {
+              $match: {
+                assignedToUserId: mongoose.Types.ObjectId(req.user._id),
+              },
+            },
+          ]
+        : []),
+        {
+          $project: {
+            agencyName: 1,
+          },
+        },
+      ]);
+      return res.status(200).json({ success: true, agencyName });
+    } catch (error) {
+      return res.status(500).json({ msg: error.message });
+    }
   },
 };
 

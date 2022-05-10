@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const agenciesCtrl = require("../controllers/agenciesCtrl");
 const auth = require("../middleware/access");
+const checkAdmin = require("../middleware/AdminAccess");
 
 router.get(
   "/getAllAgencies/:tab/:page/:limit",
@@ -25,5 +26,9 @@ router.get(
 router.get("/getAgencyDeveloper/:id", auth, agenciesCtrl.getAgencyDeveloper);
 
 router.get("/SearchAgency/:key", auth, agenciesCtrl.getSearchAgencies);
+
+router.patch("/addUserInAgency/:id", checkAdmin, agenciesCtrl.addUserInAgency);
+
+router.get("/getAgency", auth, agenciesCtrl.getAllAgenciesName);
 
 module.exports = router;

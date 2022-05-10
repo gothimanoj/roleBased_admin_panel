@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const mongoosePaginate = require("mongoose-paginate");
 const mongooseAggregatePaginate = require("mongoose-aggregate-paginate-v2");
 
+const status =["not scheduled","scheduled","fail","verified"]
 const developerExpertiesSchema = new mongoose.Schema({
     expertiesId: {
         type: mongoose.Types.ObjectId,
@@ -118,6 +119,23 @@ const developerSchema = new mongoose.Schema(
             type: Boolean,
             default: true,
         },
+        expectedPrice :{
+            type:Number
+        },
+        isVerified:{
+            type: Boolean,
+            default: false,
+        } ,
+        isTested:{
+            type:String,
+            enum:status
+        },
+         developerRoles: 
+            {
+                type: mongoose.Types.ObjectId,
+                ref: "DeveloperRole",
+            },
+          
     },
     {
         timestamps: true,

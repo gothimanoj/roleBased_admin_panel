@@ -1,12 +1,12 @@
 ###########
-POST http://localhost:3000/api/user/register
+POST http://localhost:4000/api/user/register
 Content-Type: application/json
 
 {
-"firstName":"Shethink",
-"lastName":"Admin",
-"email":"Admin@gmail.com",
-"Password":"ShethinkAdmin"
+"firstName":"Vedika",
+"lastName":"shethink",
+"email":"Vedika@shethink.in",
+"Password":"Vedika123"
 }
 
 ###########
@@ -19,12 +19,12 @@ Content-Type: application/json
 }
 
 ###########
-get http://localhost:4000/user/getUser
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjU1NGY0NzdkZGMyNjk5Mjc5MGEwZjUiLCJpYXQiOjE2NTA0NjIyMzZ9.UuMDvFfzqvvPSmAN5gmWwoGOhNw6DZXYkQfz6DJkumY
+get http://localhost:4000/api/user/getUser
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjU1NGVjYmI2NDE5YTk3YTU4ZjIwNzMiLCJpYXQiOjE2NTEzMjAwMDl9.XP82XGPD_jd3UFH4iaSyj7pSPrRPR_t2GliCkaB67KU"
 
 ###########
 get http://localhost:3000/api/agencies/getAllAgencies/6/1/63
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjU1NGY0NzdkZGMyNjk5Mjc5MGEwZjUiLCJpYXQiOjE2NTA0NjAyMzB9.UOy8iPv4zQOM9YFJRtPE1dnFe-F2wtmJ0nvopK5jAxY
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjU1NGVjYmI2NDE5YTk3YTU4ZjIwNzMiLCJpYXQiOjE2NTE0OTY5NDV9.Iy3bzqIZ6-We9x-ZW_yL12ERgX88O_08pgVy2EsXtxI
 
 
 ###########
@@ -110,3 +110,86 @@ Content-Type: application/json
     "developerExpertise": [],
     "socialPlatformDetails": []
 }
+
+
+
+###########
+GET  http://localhost:4000/api/developer/getAll
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjU1NGVjYmI2NDE5YTk3YTU4ZjIwNzMiLCJpYXQiOjE2NTE0ODcyNTB9.a_n-hAYysF1MoY8z7nJAjvaTprjf0t8iyZWXTS5yvSs
+
+
+
+###########
+PATCH  http://localhost:4000/api/developer/updateSingleDeveloper/622c3d1a5a288e3e470741dd
+Content-Type: application/json
+
+{
+    "expectedPrice":500000,
+    "isVerified":false,
+    "isTested":"fail"
+}
+
+
+###########
+PATCH http://localhost:4000/api/agencies/addUserInAgency/622c352f5a288e3e470417a
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjU1NGVjYmI2NDE5YTk3YTU4ZjIwNzMiLCJpYXQiOjE2NTEzMTA1Mzl9.J8mwK6c1n1GkhwKBP1E1VopIkFwXMgCcYodaqbu3eHQ
+
+Content-Type: application/json
+
+{
+    "userId":""
+}
+
+
+
+#################
+GET http://localhost:4000/api/agencies/getAllAgencies/1/1/20
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjU1NGVjYmI2NDE5YTk3YTU4ZjIwNzMiLCJpYXQiOjE2NTEzODcwNTJ9.XuApB6nVjzTP6wzhc8szZBBkJvsWyC3UqlNMjQuJKO4
+
+
+###########
+POST http://localhost:4000/api/user/newRequest
+Content-Type: application/json
+
+{
+   "userId":"626e1edb6211f025b2781527", 
+   "agencyId":"622c352f5a288e3e4707417a"
+}
+
+###########
+GET http://localhost:4000/api/user/getAllRequest
+Content-Type: application/json
+
+
+
+###########
+GET http://localhost:4000/api/agencies/getAllAgencies/8/1/20
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjU1NGVjYmI2NDE5YTk3YTU4ZjIwNzMiLCJpYXQiOjE2NTE0NzQ3OTB9.vzDlHvoLSASHBoxy6wn1hfk5n7yDYHcY6KQGOyKfGbM
+Content-Type: application/json
+
+
+
+
+###########
+GET http://localhost:4000/api/agencies/getAgency
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjU1NGVjYmI2NDE5YTk3YTU4ZjIwNzMiLCJpYXQiOjE2NTE0OTY5NDV9.Iy3bzqIZ6-We9x-ZW_yL12ERgX88O_08pgVy2EsXtxI
+
+
+############
+GET http://localhost:4000/api/developer/getDeveloper
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjU1NGVjYmI2NDE5YTk3YTU4ZjIwNzMiLCJpYXQiOjE2NTE0OTY5NDV9.Iy3bzqIZ6-We9x-ZW_yL12ERgX88O_08pgVy2EsXtxI
+
+
+
+
+############
+GET http://localhost:4000/api/developer/getDeveloperRole
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjU1NGVjYmI2NDE5YTk3YTU4ZjIwNzMiLCJpYXQiOjE2NTE0OTY5NDV9.Iy3bzqIZ6-We9x-ZW_yL12ERgX88O_08pgVy2EsXtxI
+
+
+
+
+
+############
+GET http://localhost:4000/api/developer/getAllTech
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjU1NGVjYmI2NDE5YTk3YTU4ZjIwNzMiLCJpYXQiOjE2NTE0OTY5NDV9.Iy3bzqIZ6-We9x-ZW_yL12ERgX88O_08pgVy2EsXtxI
