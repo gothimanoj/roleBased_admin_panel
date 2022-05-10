@@ -10,6 +10,9 @@ app.use(cors())
 app.use('/api/user', require('./routes/userRouter'))
 app.use('/api/agencies', require('./routes/agenciesRouter'))
 app.use('/api/clients', require('./routes/clientsRouter'))
+app.use('/api/hiredeveloper', require('./routes/hireDeveloper'))
+app.use('/api/developer', require('./routes/developersRouter'))
+
 
 app.use('/image',express.static(__dirname+'/image'));
 

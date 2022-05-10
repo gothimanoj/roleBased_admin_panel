@@ -7,4 +7,6 @@ router.post('/register',upload.single('image'), userCtrl.register)
 router.get('/getUser',auth,userCtrl.getUserById)
 router.post('/login',userCtrl.login)
 
+router.post('/newRequest',userCtrl.createNewRequest)
+router.get('/getAllRequest',userCtrl.getAllRequest)
 module.exports = router

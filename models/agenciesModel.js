@@ -224,7 +224,11 @@ const agencySchema = new mongoose.Schema(
         agencyDocuments: [agencyDocumentsSchema],
         socialPlatformDetails: [socialPlatformDetailsSchema],
         agencyRules: [agencyRulesSchema],
-        agencyTiming: agencyTimingSchema
+        agencyTiming: agencyTimingSchema,
+        assignedToUserId:{
+            type: mongoose.Types.ObjectId,
+            ref: "Users",
+        }
     },
     {
         timestamps: true,

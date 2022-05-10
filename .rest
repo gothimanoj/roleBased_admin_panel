@@ -1,12 +1,12 @@
 ###########
-POST http://localhost:4000/user/register
+POST http://localhost:4000/api/user/register
 Content-Type: application/json
 
 {
-"firstName":"deepak",
-"lastName":"sahu",
-"email":"deepaksahu7201@gmail.com",
-"Password":"deepak"
+"firstName":"Vedika",
+"lastName":"shethink",
+"email":"Vedika@shethink.in",
+"Password":"Vedika123"
 }
 
 ###########
@@ -14,22 +14,24 @@ POST http://localhost:4000/api/user/login
 Content-Type: application/json
 
 {
-"email":"deepaksahu7201@gmail.com",
-"password":"deepak"
+   "email":"Admin@gmail.com",
+   "password":"ShethinkAdmin"
 }
 
 ###########
-get http://localhost:4000/user/getUser
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWE4YzBlMWJiMjk1MjZhZmE1ZDA4MTQiLCJpYXQiOjE2Mzg0NTA0MTd9.MZRqT-jXeFKazCmmYvrKz-YEa21lsrbgmwDbygMRgbM
+get http://localhost:4000/api/user/getUser
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjU1NGVjYmI2NDE5YTk3YTU4ZjIwNzMiLCJpYXQiOjE2NTEzMjAwMDl9.XP82XGPD_jd3UFH4iaSyj7pSPrRPR_t2GliCkaB67KU"
 
 ###########
-get http://localhost:4000/api/agencies/getAllAgencies/1/1/20
+get http://localhost:3000/api/agencies/getAllAgencies/6/1/63
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjU1NGVjYmI2NDE5YTk3YTU4ZjIwNzMiLCJpYXQiOjE2NTE0OTY5NDV9.Iy3bzqIZ6-We9x-ZW_yL12ERgX88O_08pgVy2EsXtxI
+
 
 ###########
-get http://localhost:4000/api/agencies/getAgencyById/618cad3666093b08653f282b
+get http://13.234.120.7/backend/api/agencies/getAgencyById/618cad3666093b08653f282b
 
 ###########
-get http://localhost:4000/api/clients/getAllClients/1/20
+get http://localhost:5000/api/clients/getAllClients/1/20
 
 ###########
 get http://localhost:4000/api/clients/getProjectByClientId/619c9f36ccfff254bdf702a8
@@ -55,9 +57,139 @@ get http://localhost:4000/api/agencies/getProjectAgencyById/618e4fe4bea2c21bab50
 get http://localhost:4000/api/agencies/getAllRequestForDeveloper/618cda7266093b08653f2aaa
 
 ###########
-get http://localhost:4000/api/agencies/getAgencyDeveloper/618cda7266093b08653f2aaa
+get http://localhost:4000/api/agencies/getAgencyDeveloper/622c352f5a288e3e4707417a
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWE5ZGMwZDBlMDBjNDg2OTg1ZDEzY2UiLCJpYXQiOjE2NDgwMzY0OTF9.CTbn6yl8L9B_d2grhLI5cFnByH2l4Aw8ZEi2C0CZNpw
+
 
 ###########
 get http://localhost:4000/api/clients/SearchClient/dubeymohit037
 
 
+
+
+###########
+get http://localhost:4000/api/hiredeveloper/getRequirement
+
+###########
+get http://localhost:4000/api/hiredeveloper/singleRequirement/624abbfe371ed3162f599636
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjU1NGY0NzdkZGMyNjk5Mjc5MGEwZjUiLCJpYXQiOjE2NTA1MjU3MDJ9.XgnIFXJ5NwDgjdxqKYfgtKeq7iMQNnuL-IMoiU3AWfU
+
+
+
+###########
+get http://localhost:3000/api/agencies/SearchAgency/Wingstech
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjU1NGVjYmI2NDE5YTk3YTU4ZjIwNzMiLCJpYXQiOjE2NTA2MTE1Njh9.pK0V_z1xjlEnYI2QrJoB9zZGuxlto0YG2U64Jxzi_yQ
+
+
+###########
+PATCH  http://localhost:4000/api/hiredeveloper/updateSingleRequirementById/622c3a4b5a288e3e470741b4
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjU1NGVjYmI2NDE5YTk3YTU4ZjIwNzMiLCJpYXQiOjE2NTA2MTE1Njh9.pK0V_z1xjlEnYI2QrJoB9zZGuxlto0YG2U64Jxzi_yQ
+Content-Type: application/json
+
+{
+   "developerTechnologies": [
+    "6079b1e43a6a2457d0036854",
+    "607400bf35151a5665006a33",
+    "6079b1f03a6a2457d0036855",
+    "607c5d21e314963c30bd0f03",
+    "607c5d19e314963c30bd0f02"
+    ],
+    "isRemoteDeveloper": false,
+    "developerExperience": 3,
+    "developerPriceRange": 65000,
+    "developerAvailability": 1,
+    "isDeveloperActive": true,
+    "firstName": "Mujahid",
+    "lastName": "Ahamad",
+    "developerDesignation": "React Native",
+    "developerDocuments": [{
+        "documentName": "Resume",
+        "documentLink": "https://sourcebae.s3.amazonaws.com/staging/pdf/1647066994701.pdf",
+    }],
+    "agencyId": "622c352f5a288e3e4707417a",
+    "developerExpertise": [],
+    "socialPlatformDetails": []
+}
+
+
+
+###########
+GET  http://localhost:4000/api/developer/getAll
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjU1NGVjYmI2NDE5YTk3YTU4ZjIwNzMiLCJpYXQiOjE2NTE0ODcyNTB9.a_n-hAYysF1MoY8z7nJAjvaTprjf0t8iyZWXTS5yvSs
+
+
+
+###########
+PATCH  http://localhost:4000/api/developer/updateSingleDeveloper/622c3d1a5a288e3e470741dd
+Content-Type: application/json
+
+{
+    "expectedPrice":500000,
+    "isVerified":false,
+    "isTested":"fail"
+}
+
+
+###########
+PATCH http://localhost:4000/api/agencies/addUserInAgency/622c352f5a288e3e470417a
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjU1NGVjYmI2NDE5YTk3YTU4ZjIwNzMiLCJpYXQiOjE2NTEzMTA1Mzl9.J8mwK6c1n1GkhwKBP1E1VopIkFwXMgCcYodaqbu3eHQ
+
+Content-Type: application/json
+
+{
+    "userId":""
+}
+
+
+
+#################
+GET http://localhost:4000/api/agencies/getAllAgencies/1/1/20
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjU1NGVjYmI2NDE5YTk3YTU4ZjIwNzMiLCJpYXQiOjE2NTEzODcwNTJ9.XuApB6nVjzTP6wzhc8szZBBkJvsWyC3UqlNMjQuJKO4
+
+
+###########
+POST http://localhost:4000/api/user/newRequest
+Content-Type: application/json
+
+{
+   "userId":"626e1edb6211f025b2781527", 
+   "agencyId":"622c352f5a288e3e4707417a"
+}
+
+###########
+GET http://localhost:4000/api/user/getAllRequest
+Content-Type: application/json
+
+
+
+###########
+GET http://localhost:4000/api/agencies/getAllAgencies/8/1/20
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjU1NGVjYmI2NDE5YTk3YTU4ZjIwNzMiLCJpYXQiOjE2NTE0NzQ3OTB9.vzDlHvoLSASHBoxy6wn1hfk5n7yDYHcY6KQGOyKfGbM
+Content-Type: application/json
+
+
+
+
+###########
+GET http://localhost:4000/api/agencies/getAgency
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjU1NGVjYmI2NDE5YTk3YTU4ZjIwNzMiLCJpYXQiOjE2NTE0OTY5NDV9.Iy3bzqIZ6-We9x-ZW_yL12ERgX88O_08pgVy2EsXtxI
+
+
+############
+GET http://localhost:4000/api/developer/getDeveloper
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjU1NGVjYmI2NDE5YTk3YTU4ZjIwNzMiLCJpYXQiOjE2NTE0OTY5NDV9.Iy3bzqIZ6-We9x-ZW_yL12ERgX88O_08pgVy2EsXtxI
+
+
+
+
+############
+GET http://localhost:4000/api/developer/getDeveloperRole
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjU1NGVjYmI2NDE5YTk3YTU4ZjIwNzMiLCJpYXQiOjE2NTE0OTY5NDV9.Iy3bzqIZ6-We9x-ZW_yL12ERgX88O_08pgVy2EsXtxI
+
+
+
+
+
+############
+GET http://localhost:4000/api/developer/getAllTech
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjU1NGVjYmI2NDE5YTk3YTU4ZjIwNzMiLCJpYXQiOjE2NTE0OTY5NDV9.Iy3bzqIZ6-We9x-ZW_yL12ERgX88O_08pgVy2EsXtxI

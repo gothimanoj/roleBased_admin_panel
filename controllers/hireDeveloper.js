@@ -1,0 +1,247 @@
+require("dotenv").config();
+const HireDeveloper = require("../models/hireDevelopersModel");
+const mongoose = require("mongoose");
+const hireDeveloper = {
+  getAllRequirement: async (req, res) => {
+    try {
+      const { page, limit } = req.params;
+      const options = {
+        page: +page || 1,
+        limit: +limit || 20,
+      };
+      const agencies = HireDeveloper.aggregate([
+        {
+          $lookup: {
+            from: "technologies",
+            let: { technologiesId: "$developerTechnologiesRequired" },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $in: ["$_id", "$$technologiesId"],
+                  },
+                },
+              },
+              {
+                $project: {
+                  technologyName: 1,
+                  _id: 0,
+                },
+              },
+            ],
+            as: "developerTechnologiesRequired",
+          },
+        },
+        {
+          $lookup: {
+            from: "clients",
+            let: { clientId: "$clientId" },
+            pipeline: [
+              { $match: { $expr: { $eq: ["$_id", "$$clientId"] } } },
+              {
+                $project: {
+                  firstName: 1,
+                  lastName: 1,
+                  userName: 1,
+                },
+              },
+            ],
+            as: "clientId",
+          },
+        },
+      ]);
+
+      const allRequirement = await HireDeveloper.aggregatePaginate(
+        agencies,
+        options
+      );
+      return res.json({ success: true, allRequirement });
+    } catch (error) {
+      return res.status(500).json({ msg: error.message });
+    }
+  },
+
+  singleRequirement: async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      const singleRequirement = await HireDeveloper.aggregate([
+        {
+          $match: {
+            _id: mongoose.Types.ObjectId(id),
+          },
+        },
+        {
+          $unwind: {
+            path: "$developersShared",
+          },
+        },
+        {
+          $lookup: {
+            from: "agencies",
+            localField: "developersShared.agencyId",
+            foreignField: "_id",
+            as: "agency",
+          },
+        },
+        {
+          $lookup: {
+            from: "developers",
+            localField: "developersShared.developerId",
+            foreignField: "_id",
+            as: "developer",
+          },
+        },
+        {
+          $lookup: {
+            from: "technologies",
+            let: { id: "$developerTechnologiesRequired" },
+            pipeline: [
+              {
+                $match: {
+                  $expr: { $in: ["$_id", "$$id"] },
+                },
+              },
+              {
+                $project: {
+                  technologyName: 1,
+                },
+              },
+            ],
+            as: "developerTechnologiesRequired",
+          },
+        },
+        {
+          $unwind: {
+            path: "$agency",
+          },
+        },
+        {
+          $unwind: {
+            path: "$developer",
+          },
+        },
+        {
+          $project: {
+            agency: 1,
+            developer: 1,
+            developersShared: 1,
+            requirementName: 1,
+            jobDescription: 1,
+            developerRolesRequired: 1,
+            numberOfResourcesRequired: 1,
+            developerExperienceRequired: 1,
+            averageBudget: 1,
+            developerTechnologiesRequired: 1,
+            contractPeriod: 1,
+            expectedStartTime: 1,
+          },
+        },
+      ]);
+
+      return res.json({ success: true, singleRequirement });
+    } catch (error) {
+      return res.status(500).json({ msg: error.message });
+    }
+  },
+
+  singleRequirementById: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const singleRequirementById = await HireDeveloper.aggregate([
+        {
+          $match: {
+            _id: mongoose.Types.ObjectId(id),
+          },
+        },
+        {
+          $lookup: {
+            from: "technologies",
+            let: { id: "$developerTechnologiesRequired" },
+            pipeline: [
+              {
+                $match: {
+                  $expr: { $in: ["$_id", "$$id"] },
+                },
+              },
+              {
+                $project: {
+                  technologyName: 1,
+                },
+              },
+            ],
+            as: "developerTechnologiesRequired",
+          },
+        },
+        {
+          $project: {
+            requirementName: 1,
+            jobDescription: 1,
+            developerRolesRequired: 1,
+            numberOfResourcesRequired: 1,
+            developerExperienceRequired: 1,
+            averageBudget: 1,
+            developerTechnologiesRequired: 1,
+            contractPeriod: 1,
+            expectedStartDate: 1,
+          },
+        },
+      ]);
+
+      return res.json({ success: true, singleRequirementById });
+    } catch (error) {
+      return res.status(500).json({ msg: error.message });
+    }
+  },
+
+  updateSingleRequirementById: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const {
+        requirementName,
+        developerRolesRequired,
+        numberOfResourcesRequired,
+        developerTechnologiesRequired,
+        developerExperienceRequired,
+        preferredBillingMode,
+        averageBudget,
+        jobDescription,
+        expectedStartTime,
+        contractPeriod,
+        clientId,
+      } = req.body;
+      const singleRequirementById = await HireDeveloper.findOne(
+        mongoose.Types.ObjectId(id)
+      );
+
+      singleRequirementById.requirementName =
+        requirementName || singleRequirementById.requirementName;
+      singleRequirementById.developerRolesRequired =
+        developerRolesRequired || singleRequirementById.developerRolesRequired;
+      singleRequirementById.numberOfResourcesRequired =
+        numberOfResourcesRequired || singleRequirementById.requirementName;
+      singleRequirementById.developerTechnologiesRequired =
+        developerTechnologiesRequired || singleRequirementById.requirementName;
+      singleRequirementById.developerExperienceRequired =
+        developerExperienceRequired ||
+        singleRequirementById.developerExperienceRequired;
+      singleRequirementById.preferredBillingMode =
+        preferredBillingMode || singleRequirementById.preferredBillingMode;
+      singleRequirementById.jobDescription =
+      jobDescription || singleRequirementById.jobDescription;
+      singleRequirementById.averageBudget =
+        averageBudget || averageBudget.averageBudget;
+      singleRequirementById.expectedStartDate =
+        expectedStartTime?.toString() ||  singleRequirementById.expectedStartDate;
+      singleRequirementById.contractPeriod =
+      contractPeriod || singleRequirementById.contractPeriod;
+      singleRequirementById.clientId = clientId || clientId.requirementName;
+     await singleRequirementById.save();
+      return res.json({ success: true });
+    } catch (error) {
+      return res.status(500).json({ msg: error.message });
+    }
+  },
+};
+
+module.exports = hireDeveloper;

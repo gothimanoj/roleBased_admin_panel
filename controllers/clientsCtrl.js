@@ -129,7 +129,6 @@ const clientsCtrl = {
         limit: +limit || 20,
         select: "-password",
       };
-      console.log(req.params.key);
       const clients = await Client.find({
         $or: [
           { companyName: { $regex: req.params.key } },
