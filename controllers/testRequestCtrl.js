@@ -5,6 +5,7 @@ const Client = require("../models/clientsModel");
 const connection = require("../config/mysqlConfig");
 const mongoose = require("mongoose");
 var moment = require("moment");
+const sendEmail = require("../helpers/mailHelper");
 const { getAllData } = require("../helpers/mysqlCallBack");
 const testRequest = {
   getAllRequest: async (req, res) => {
@@ -115,7 +116,6 @@ const testRequest = {
       if (req.query.agencyId) {
         const agency = await Agency.findById(req.query.agencyId);
         var check = `SELECT * FROM users WHERE first_name = '${agency.firstName}' AND email = '${agency.userEmail}'`;
-
         const data = await getAllData(check);
         if (data.length > 0) {
           return res.json({
@@ -129,9 +129,14 @@ const testRequest = {
         }','${date}',password,${1},${1},'${date}','${date}')`;
 
         await getAllData(sql);
+        await sendEmail(agency.userEmail, "user creation", "testing.hbs", {
+          name: agency.firstName,
+          username: agency.userEmail,
+          password: "password",
+        });
       }
       if (req.query.clientId) {
-        const client = await Client.findById(req.query.clientId);
+        var client = await Client.findById(req.query.clientId);
 
         const check = `SELECT * FROM users WHERE first_name = '${client.firstName}' AND email = '${client.userEmail}'`;
         const data = await getAllData(check);
@@ -148,6 +153,11 @@ const testRequest = {
         }','${date}','password',${1},${1},'${date}','${date}')`;
       }
       await getAllData(sql);
+      await sendEmail(client.userEmail, "user creation", "testing.hbs", {
+        name: client.firstName,
+        username: client.lastName,
+        password: "password",
+      });
       return res.json({
         success: true,
       });
@@ -162,9 +172,9 @@ const testRequest = {
       if (req.query.agencyId) {
         const agency = await Agency.findById(req.query.agencyId);
 
-        const checkFroUser =`SELECT * FROM users WHERE email = '${agency.userEmail}'`
+        const checkFroUser = `SELECT * FROM users WHERE email = '${agency.userEmail}'`;
         const userExist = await getAllData(checkFroUser);
-        if(userExist.length==0){
+        if (userExist.length == 0) {
           return res.json({
             msg: "you have't create the user",
           });
@@ -178,19 +188,15 @@ const testRequest = {
           });
         }
 
-        
-
-        var sql = `INSERT INTO organizations (name,logo,created_by,updated_by,created_at,updated_at)VALUES ('${
-          agency.agencyName
-        }','${agency.agencyLogo}',${1},${1},'${date}','${date}')`;
+        var sql = `INSERT INTO organizations (name,logo,created_by,updated_by,created_at,updated_at)VALUES ('${agency.agencyName}','${agency.agencyLogo}',${userExist[0].created_by},${userExist[0].updated_by},'${date}','${date}')`;
         await getAllData(sql);
       }
       if (req.query.clientId) {
         const client = await Client.findById(req.query.clientId);
 
-        const checkFroUser =`SELECT * FROM users WHERE email = '${client.userEmail}'`
+        const checkFroUser = `SELECT * FROM users WHERE email = '${client.userEmail}'`;
         const userExist = await getAllData(checkFroUser);
-        if(userExist.length==0){
+        if (userExist.length == 0) {
           return res.json({
             msg: "you have't create the user",
           });
@@ -203,9 +209,7 @@ const testRequest = {
             msg: "you already create the user",
           });
         }
-        var sql = `INSERT INTO organizations (name,logo,created_by,updated_by,created_at,updated_at)VALUES ('${
-          client.companyName
-        }','${client.clientLogo}',${1},${1},'${date}','${date}')`;
+        var sql = `INSERT INTO organizations (name,logo,created_by,updated_by,created_at,updated_at)VALUES ('${client.companyName}','${client.clientLogo}',${userExist[0].created_by},${userExist[0].updated_by},'${date}','${date}')`;
         await getAllData(sql);
       }
 

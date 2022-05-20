@@ -6,6 +6,7 @@ const app = express()
 app.use(express.json())
 app.use(cors())
 const dbService = require('./config/mysqlConfig');
+require('./helpers/mailHelper');
 // Routes
 app.use('/api/user', require('./routes/userRouter'))
 app.use('/api/agencies', require('./routes/agenciesRouter'))
