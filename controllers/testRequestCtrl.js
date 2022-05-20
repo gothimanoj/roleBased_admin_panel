@@ -162,6 +162,14 @@ const testRequest = {
       if (req.query.agencyId) {
         const agency = await Agency.findById(req.query.agencyId);
 
+        const checkFroUser =`SELECT * FROM users WHERE email = '${agency.userEmail}'`
+        const userExist = await getAllData(checkFroUser);
+        if(userExist.length==0){
+          return res.json({
+            msg: "you have't create the user",
+          });
+        }
+
         const check = `SELECT * FROM organizations WHERE name = '${agency.agencyName}'`;
         const data = await getAllData(check);
         if (data.length > 0) {
@@ -170,6 +178,8 @@ const testRequest = {
           });
         }
 
+        
+
         var sql = `INSERT INTO organizations (name,logo,created_by,updated_by,created_at,updated_at)VALUES ('${
           agency.agencyName
         }','${agency.agencyLogo}',${1},${1},'${date}','${date}')`;
@@ -177,6 +187,14 @@ const testRequest = {
       }
       if (req.query.clientId) {
         const client = await Client.findById(req.query.clientId);
+
+        const checkFroUser =`SELECT * FROM users WHERE email = '${client.userEmail}'`
+        const userExist = await getAllData(checkFroUser);
+        if(userExist.length==0){
+          return res.json({
+            msg: "you have't create the user",
+          });
+        }
 
         const check = `SELECT * FROM organizations WHERE name = '${client.companyName}'`;
         const data = await getAllData(check);
