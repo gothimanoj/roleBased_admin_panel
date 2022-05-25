@@ -117,7 +117,6 @@ const testRequest = {
         let agency = await Agency.findById(req.query.agencyId);
         var check = `SELECT * FROM users WHERE first_name = '${agency.firstName}' AND email = '${agency.userEmail}'`;
         const data = await getAllData(check);
-        console.log(data.length,data);
         if (data.length > 0) {
           return res.json({
             msg: "you already create the user",
@@ -188,7 +187,7 @@ const testRequest = {
         const data = await getAllData(check);
         if (data.length > 0) {
           return res.json({
-            msg: "you already create the user",
+            msg: "you already create the organizations",
           });
         }
 
@@ -210,7 +209,7 @@ const testRequest = {
         const data = await getAllData(check);
         if (data.length > 0) {
           return res.json({
-            msg: "you already create the user",
+            msg: "you already create the organizations",
           });
         }
         var sql = `INSERT INTO organizations (name,logo,created_by,updated_by,created_at,updated_at)VALUES ('${client.companyName}','${client.clientLogo}',${userExist[0].created_by},${userExist[0].updated_by},'${date}','${date}')`;

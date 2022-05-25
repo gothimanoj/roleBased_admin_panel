@@ -8,7 +8,6 @@ async function sendEmail(to, subject, template, context) {
     path.join("email-templates", template),
     "utf-8"
   );
-console.log("data");
   template = handlebars.compile(templateFile);
   const html = template(context);
 
