@@ -114,9 +114,10 @@ const testRequest = {
     try {
       const date = moment().format("YYYY-MM-DD hh:mm:ss");
       if (req.query.agencyId) {
-        const agency = await Agency.findById(req.query.agencyId);
+        let agency = await Agency.findById(req.query.agencyId);
         var check = `SELECT * FROM users WHERE first_name = '${agency.firstName}' AND email = '${agency.userEmail}'`;
         const data = await getAllData(check);
+        console.log(data.length,data);
         if (data.length > 0) {
           return res.json({
             msg: "you already create the user",
@@ -129,6 +130,7 @@ const testRequest = {
         }','${date}',password,${1},${1},'${date}','${date}')`;
 
         await getAllData(sql);
+        
         await sendEmail(agency.userEmail, "user creation", "testing.hbs", {
           name: agency.firstName,
           username: agency.userEmail,
@@ -151,13 +153,15 @@ const testRequest = {
         }','${client.lastName}','${
           client.userEmail
         }','${date}','password',${1},${1},'${date}','${date}')`;
+
+        await getAllData(sql);
+        await sendEmail(client.userEmail, "user creation", "testing.hbs", {
+          name: client.firstName,
+          username: client.lastName,
+          password: "password",
+        });
       }
-      await getAllData(sql);
-      await sendEmail(client.userEmail, "user creation", "testing.hbs", {
-        name: client.firstName,
-        username: client.lastName,
-        password: "password",
-      });
+     
       return res.json({
         success: true,
       });
