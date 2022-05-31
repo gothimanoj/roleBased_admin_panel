@@ -143,7 +143,7 @@ const testRequest = {
           name: agency.firstName,
           username: agency.userEmail,
           password: "password@123",
-          link:`http://test.recruitbae.sourcebae.com?check=true`
+          link:`http://test.recruitbae.sourcebae.com`
         });
       }
       if (req.query.clientId) {
@@ -171,7 +171,7 @@ const testRequest = {
           name: client.firstName,
           username: client.lastName,
           password: password,
-          link:`http://test.recruitbae.sourcebae.com?check=true`
+          link:`http://test.recruitbae.sourcebae.com`
         });
       }
      
