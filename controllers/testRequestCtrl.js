@@ -7,6 +7,9 @@ const mongoose = require("mongoose");
 var moment = require("moment");
 const sendEmail = require("../helpers/mailHelper");
 const { getAllData } = require("../helpers/mysqlCallBack");
+const bcrypt = require('bcrypt');
+
+
 const testRequest = {
   getAllRequest: async (req, res) => {
     try {
@@ -112,6 +115,7 @@ const testRequest = {
 
   create: async (req, res) => {
     try {
+
       const date = moment().format("YYYY-MM-DD hh:mm:ss");
       if (req.query.agencyId) {
         let agency = await Agency.findById(req.query.agencyId);
@@ -122,18 +126,24 @@ const testRequest = {
             msg: "you already create the user",
           });
         }
+
+        const salt = await bcrypt.genSalt(10);
+        
+        const password = await bcrypt.hash("password@123", salt);
+
         var sql = `INSERT INTO users (first_name,last_name,email,email_verified_at,password,created_by,updated_by,created_at,updated_at)VALUES ('${
           agency.firstName
         }','${agency.lastName}','${
           agency.userEmail
-        }','${date}',password,${1},${1},'${date}','${date}')`;
+        }','${date}','${password}',${1},${1},'${date}','${date}')`;
 
         await getAllData(sql);
         
         await sendEmail(agency.userEmail, "user creation", "testing.hbs", {
           name: agency.firstName,
           username: agency.userEmail,
-          password: "password",
+          password: "password@123",
+          link:`http://test.recruitbae.sourcebae.com?check=true`
         });
       }
       if (req.query.clientId) {
@@ -146,18 +156,22 @@ const testRequest = {
             msg: "you already create the user",
           });
         }
+        const salt = await bcrypt.genSalt(10);
+        
+        const password = await bcrypt.hash("password@123", salt);
 
         var sql = `INSERT INTO users (first_name,last_name,email,email_verified_at,password,created_by,updated_by,created_at,updated_at)VALUES ('${
           client.firstName
         }','${client.lastName}','${
           client.userEmail
-        }','${date}','password',${1},${1},'${date}','${date}')`;
+        }','${date}','${password}',${1},${1},'${date}','${date}')`;
 
         await getAllData(sql);
         await sendEmail(client.userEmail, "user creation", "testing.hbs", {
           name: client.firstName,
           username: client.lastName,
-          password: "password",
+          password: password,
+          link:`http://test.recruitbae.sourcebae.com?check=true`
         });
       }
      
