@@ -7,8 +7,7 @@ const mongoose = require("mongoose");
 var moment = require("moment");
 const sendEmail = require("../helpers/mailHelper");
 const { getAllData } = require("../helpers/mysqlCallBack");
-const bcrypt = require('bcrypt');
-
+const bcrypt = require("bcrypt");
 
 const testRequest = {
   getAllRequest: async (req, res) => {
@@ -115,7 +114,6 @@ const testRequest = {
 
   create: async (req, res) => {
     try {
-
       const date = moment().format("YYYY-MM-DD hh:mm:ss");
       if (req.query.agencyId) {
         let agency = await Agency.findById(req.query.agencyId);
@@ -128,7 +126,7 @@ const testRequest = {
         }
 
         const salt = await bcrypt.genSalt(10);
-        
+
         const password = await bcrypt.hash("password@123", salt);
 
         var sql = `INSERT INTO users (first_name,last_name,email,email_verified_at,password,created_by,updated_by,created_at,updated_at)VALUES ('${
@@ -138,14 +136,21 @@ const testRequest = {
         }','${date}','${password}',${1},${1},'${date}','${date}')`;
 
         await getAllData(sql);
-        
+
+        var getNewUser = `SELECT * FROM users WHERE first_name = '${agency.firstName}' AND email = '${agency.userEmail}'`;
+        const newUser = await getAllData(getNewUser);
+        const addInRole = `INSERT INTO user_roles (user_id,role_id,created_by,updated_by,created_at,updated_at)VALUES (${newUser[0].id},3,2,2,'${date}','${date}')`;
+
+        await getAllData(addInRole);
+
         await sendEmail(agency.userEmail, "user creation", "testing.hbs", {
           name: agency.firstName,
           username: agency.userEmail,
           password: "password@123",
-          link:`http://test.recruitbae.sourcebae.com`
+          link: `http://test.recruitbae.sourcebae.com`,
         });
       }
+
       if (req.query.clientId) {
         var client = await Client.findById(req.query.clientId);
 
@@ -157,7 +162,7 @@ const testRequest = {
           });
         }
         const salt = await bcrypt.genSalt(10);
-        
+
         const password = await bcrypt.hash("password@123", salt);
 
         var sql = `INSERT INTO users (first_name,last_name,email,email_verified_at,password,created_by,updated_by,created_at,updated_at)VALUES ('${
@@ -167,14 +172,23 @@ const testRequest = {
         }','${date}','${password}',${1},${1},'${date}','${date}')`;
 
         await getAllData(sql);
+
+        var getNewUser = `SELECT * FROM users WHERE first_name = '${client.firstName}' AND email = '${client.userEmail}'`;
+
+        const newUser = await getAllData(getNewUser);
+       
+        const addInRole = `INSERT INTO user_roles (user_id,role_id,created_by,updated_by,created_at,updated_at)VALUES (${newUser[0].id},3,2,2,'${date}','${date}')`;
+
+        await getAllData(addInRole);
+
         await sendEmail(client.userEmail, "user creation", "testing.hbs", {
           name: client.firstName,
           username: client.lastName,
           password: password,
-          link:`http://test.recruitbae.sourcebae.com`
+          link: `http://test.recruitbae.sourcebae.com`,
         });
       }
-     
+
       return res.json({
         success: true,
       });
