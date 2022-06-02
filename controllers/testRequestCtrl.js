@@ -127,7 +127,7 @@ const testRequest = {
 
         const salt = await bcrypt.genSalt(10);
 
-        const password = await bcrypt.hash("password@123", salt);
+        const password = await bcrypt.hash("Password@123", salt);
 
         var sql = `INSERT INTO users (first_name,last_name,email,email_verified_at,password,created_by,updated_by,created_at,updated_at)VALUES ('${
           agency.firstName
