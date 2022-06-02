@@ -134,12 +134,11 @@ const testRequest = {
         }','${agency.lastName}','${
           agency.userEmail
         }','${date}','${password}',${1},${1},'${date}','${date}')`;
-
         await getAllData(sql);
 
         var getNewUser = `SELECT * FROM users WHERE first_name = '${agency.firstName}' AND email = '${agency.userEmail}'`;
         const newUser = await getAllData(getNewUser);
-        const addInRole = `INSERT INTO user_roles (user_id,role_id,created_by,updated_by,created_at,updated_at)VALUES (${newUser[0].id},3,2,2,'${date}','${date}')`;
+        const addInRole = `INSERT INTO user_roles (user_id,role_id,created_by,updated_by,created_at,updated_at)VALUES (${newUser[0].id},2,2,2,'${date}','${date}')`;
 
         await getAllData(addInRole);
 
