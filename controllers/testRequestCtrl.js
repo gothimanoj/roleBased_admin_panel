@@ -175,7 +175,7 @@ const testRequest = {
         var getNewUser = `SELECT * FROM users WHERE first_name = '${client.firstName}' AND email = '${client.userEmail}'`;
 
         const newUser = await getAllData(getNewUser);
-       
+
         const addInRole = `INSERT INTO user_roles (user_id,role_id,created_by,updated_by,created_at,updated_at)VALUES (${newUser[0].id},3,2,2,'${date}','${date}')`;
 
         await getAllData(addInRole);
@@ -219,7 +219,26 @@ const testRequest = {
         }
 
         var sql = `INSERT INTO organizations (name,logo,created_by,updated_by,created_at,updated_at)VALUES ('${agency.agencyName}','${agency.agencyLogo}',${userExist[0].created_by},${userExist[0].updated_by},'${date}','${date}')`;
+
         await getAllData(sql);
+
+        const findOrganizations = `SELECT * FROM organizations WHERE name = '${agency.agencyName}'`;
+
+        const newOrganizations = await getAllData(findOrganizations);
+
+        const interTeam = `INSERT INTO teams (organization_id,name,created_by,updated_by,created_at,updated_at) VALUES(${newOrganizations[0].id},'Management',${newOrganizations[0].created_by},${newOrganizations[0].updated_by},'${date}','${date}')`;
+
+        await getAllData(interTeam);
+
+        const interNewTeam = `SELECT * FROM teams WHERE  organization_id=${newOrganizations[0].id}`;
+        const interNewTeam1 = await getAllData(interNewTeam);
+        var getNewUser = `SELECT * FROM users WHERE first_name = '${agency.firstName}' AND email = '${agency.userEmail}'`;
+
+        const newUser = await getAllData(getNewUser);
+
+        const interUserTeam = `INSERT INTO user_teams (user_id,team_id,created_by,updated_by,created_at,updated_at) VALUES (${newUser[0].id},${interNewTeam1[0].id},${newOrganizations[0].created_by},${newOrganizations[0].updated_by},'${date}','${date}')`;
+
+        await getAllData(interUserTeam);
       }
       if (req.query.clientId) {
         const client = await Client.findById(req.query.clientId);
@@ -241,6 +260,24 @@ const testRequest = {
         }
         var sql = `INSERT INTO organizations (name,logo,created_by,updated_by,created_at,updated_at)VALUES ('${client.companyName}','${client.clientLogo}',${userExist[0].created_by},${userExist[0].updated_by},'${date}','${date}')`;
         await getAllData(sql);
+
+        const findOrganizations = `SELECT * FROM organizations WHERE name = '${client.companyName}'`;
+
+        const newOrganizations = await getAllData(findOrganizations);
+
+        const interTeam = `INSERT INTO teams (organization_id,name,created_by,updated_by,created_at,updated_at) VALUES(${newOrganizations[0].id},'Management',${newOrganizations[0].created_by},${newOrganizations[0].updated_by},'${date}','${date}')`;
+
+        await getAllData(interTeam);
+
+        const interNewTeam = `SELECT * FROM teams WHERE  organization_id=${newOrganizations[0].id}`;
+        const interNewTeam1 = await getAllData(interNewTeam);
+        var getNewUser = `SELECT * FROM users WHERE first_name = '${client.firstName}' AND email = '${client.userEmail}'`;
+
+        const newUser = await getAllData(getNewUser);
+
+        const interUserTeam = `INSERT INTO user_teams (user_id,team_id,created_by,updated_by,created_at,updated_at) VALUES (${newUser[0].id},${interNewTeam1[0].id},${newOrganizations[0].created_by},${newOrganizations[0].updated_by},'${date}','${date}')`;
+
+        await getAllData(interUserTeam);
       }
 
       return res.json({
