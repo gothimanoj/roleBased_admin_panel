@@ -2,6 +2,7 @@ require("dotenv").config();
 const Developer = require("../models/developersModel");
 const DeveloperRole = require("../models/developerRolesModel");
 const Technology = require("../models/technologiesModel");
+const Agency = require("../models/agenciesModel");
 const mongoose = require("mongoose");
 const developer = {
   getAllDeveloper: async (req, res) => {
@@ -171,6 +172,48 @@ const developer = {
         options
       );
       return res.status(200).json({ success: true, getAllDeveloper });
+    } catch (error) {
+      return res.status(500).json({ msg: error.message });
+    }
+  },
+
+  setDeveloper: async (req, res) => {
+    try {
+      const {
+        firstName,
+        lastName,
+        developerDesignation,
+        developerTechnologies,
+        agencyName,
+        developerExperience,
+        developerPriceRange,
+        developerAvailability,
+        expectedPrice,
+        isTested,
+        developerRoles
+      } = req.body;
+      let ids=[];
+      for(let i=0;i< developerTechnologies.length;i++){
+        let Obj = await Technology.findOne({technologyName:developerTechnologies[i]});
+        ids.push(Obj._id);
+      }
+      let agency = await Agency.findOne({agencyName})
+      let developer_role = await DeveloperRole.findOne({roleName:developerRoles})
+      const devDoc = new Developer({
+        firstName,
+        lastName,
+        developerDesignation,
+        developerTechnologies:ids,
+        agencyId:agency._id,
+        developerExperience,
+        developerPriceRange,
+        developerAvailability,
+        expectedPrice,
+        isTested,
+        developerRoles:developer_role._id  
+      });
+      await devDoc.save();
+      return res.status(200).json({ success: true, msg:"developer created successfully" });
     } catch (error) {
       return res.status(500).json({ msg: error.message });
     }
