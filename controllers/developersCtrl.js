@@ -4,6 +4,11 @@ const DeveloperRole = require("../models/developerRolesModel");
 const Technology = require("../models/technologiesModel");
 const Agency = require("../models/agenciesModel");
 const mongoose = require("mongoose");
+const xlsx = require("xlsx");
+const path = require("path");
+const mime = require("mime");
+const fs = require("fs");
+const axios = require("axios");
 const developer = {
   getAllDeveloper: async (req, res) => {
     try {
@@ -49,8 +54,8 @@ const developer = {
         aggregation.push({
           $match: {
             developerPriceRange: {
-              $gte:+req.query.minPriceRange, 
-              $lt:+req.query.maxPriceRange,
+              $gte: +req.query.minPriceRange,
+              $lt: +req.query.maxPriceRange,
             },
           },
         });
@@ -76,8 +81,8 @@ const developer = {
         aggregation.push({
           $match: {
             developerExperience: {
-              $gte: +req.query.minExperience, 
-              $lt:+req.query.maxExperience,
+              $gte: +req.query.minExperience,
+              $lt: +req.query.maxExperience,
             },
           },
         });
@@ -86,7 +91,7 @@ const developer = {
       if (req.query.developerRole) {
         aggregation.push({
           $match: {
-            developerRole:mongoose.Types.ObjectId(req.query.developerRole)
+            developerRole: mongoose.Types.ObjectId(req.query.developerRole),
           },
         });
       }
@@ -94,7 +99,7 @@ const developer = {
       if (req.query.nameSearch) {
         aggregation.push({
           $match: {
-            _id: mongoose.Types.ObjectId(req.query.nameSearch)
+            _id: mongoose.Types.ObjectId(req.query.nameSearch),
           },
         });
       }
@@ -159,10 +164,10 @@ const developer = {
           isDeveloperActive: 1,
           developerDocuments: 1,
           agencyId: 1,
-          isVerified:1,
-          isTested:1,
-          developerRoles:1,
-          expectedPrice:1
+          isVerified: 1,
+          isTested: 1,
+          developerRoles: 1,
+          expectedPrice: 1,
         },
       });
 
@@ -190,30 +195,36 @@ const developer = {
         developerAvailability,
         expectedPrice,
         isTested,
-        developerRoles
+        developerRoles,
       } = req.body;
-      let ids=[];
-      for(let i=0;i< developerTechnologies.length;i++){
-        let Obj = await Technology.findOne({technologyName:developerTechnologies[i]});
+      let ids = [];
+      for (let i = 0; i < developerTechnologies.length; i++) {
+        let Obj = await Technology.findOne({
+          technologyName: developerTechnologies[i],
+        });
         ids.push(Obj._id);
       }
-      let agency = await Agency.findOne({agencyName})
-      let developer_role = await DeveloperRole.findOne({roleName:developerRoles})
+      let agency = await Agency.findOne({ agencyName });
+      let developer_role = await DeveloperRole.findOne({
+        roleName: developerRoles,
+      });
       const devDoc = new Developer({
         firstName,
         lastName,
         developerDesignation,
-        developerTechnologies:ids,
-        agencyId:agency._id,
+        developerTechnologies: ids,
+        agencyId: agency._id,
         developerExperience,
         developerPriceRange,
         developerAvailability,
         expectedPrice,
         isTested,
-        developerRoles:developer_role._id  
+        developerRoles: developer_role._id,
       });
       await devDoc.save();
-      return res.status(200).json({ success: true, msg:"developer created successfully" });
+      return res
+        .status(200)
+        .json({ success: true, msg: "developer created successfully" });
     } catch (error) {
       return res.status(500).json({ msg: error.message });
     }
@@ -267,20 +278,210 @@ const developer = {
     }
   },
 
-  getAllTech:async (req, res) => {
+  getAllTech: async (req, res) => {
     try {
-     const getAllTech =await Technology.aggregate([
-       {
-         $project:{
-          technologyName:1
-         }
-       }
-     ])
-     return res.status(200).json({ success: true, getAllTech });
+      const getAllTech = await Technology.aggregate([
+        {
+          $project: {
+            technologyName: 1,
+          },
+        },
+      ]);
+      return res.status(200).json({ success: true, getAllTech });
     } catch (error) {
       return res.status(500).json({ msg: error.message });
     }
-  }
+  },
+
+  getVerifiedDevelopers: async (req, res) => {
+    try {
+      const { verified } = req.params;
+      if (verified) {
+        let arr = await Developer.find({ isVerified: "true" })
+          .populate({
+            path: "developerTechnologies",
+            select: { _id: 0, technologyName: 1 },
+          })
+          .populate({
+            path: "agencyId",
+            select: { _id: 0, agencyName: 1 },
+          })
+          .populate({
+            path: "developerRoles",
+            select: { _id: 0, roleName: 1 },
+          });
+        let data = [];
+        for (let i = 0; i < arr.length; i++) {
+          let obj = {};
+          obj.firstName = arr[i].firstName;
+          obj.lastName = arr[i].lastName;
+          obj.agencyName = arr[i].agencyId.agencyName;
+          obj.developerEmail = "";
+          obj.developerTechnologies = arr[i].developerTechnologies
+            .map((element) => element.technologyName)
+            .join(", ");
+          obj.developerDesignation = arr[i].developerDesignation;
+          obj.developerRole = "";
+          obj.developerExperience = arr[i].developerExperience;
+          obj.developerPriceRange = arr[i].developerPriceRange;
+          obj.expectedPrice = arr[i].expectedPrice;
+          obj.isDeveloperActive = arr[i].isDeveloperActive;
+          obj.isDeveloperVerified = arr[i].isVerified;
+          obj.developerDocuments = arr[i].developerDocuments
+            .map((element) => element.documentLink)
+            .join(", ");
+          data.push(obj);
+        }
+        //creating excel file
+        const newData = JSON.stringify(data);
+        const finalData = JSON.parse(newData);
+        const newWorkbook = xlsx.utils.book_new();
+        const newWorksheet = xlsx.utils.json_to_sheet(finalData);
+        xlsx.utils.book_append_sheet(newWorkbook, newWorksheet, "userInfo");
+        const file = __dirname + "/../myDbFiles/verifiedDevelopers.xlsx";
+        xlsx.writeFile(newWorkbook, file);
+        //downloading excel file
+        let filename = path.basename(file);
+        let mimetype = mime.lookup(file);
+        res.setHeader(
+          "Content-disposition",
+          "attachment; filename=" + filename
+        );
+        res.setHeader("Content-type", mimetype);
+        let filestream = fs.createReadStream(file);
+        await filestream.pipe(res);
+      }
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
+
+  getAvailableDevelopers: async (req, res) => {
+    try {
+      const { available } = req.params;
+      if (available) {
+        let arr = await Developer.find({ developerAvailability: true })
+          .populate({
+            path: "developerTechnologies",
+            select: { _id: 0, technologyName: 1 },
+          })
+          .populate({
+            path: "agencyId",
+            select: { _id: 0, agencyName: 1 },
+          })
+          .populate({
+            path: "developerRoles",
+            select: { _id: 0, roleName: 1 },
+          });
+        let data = [];
+        for (let i = 0; i < arr.length; i++) {
+          let obj = {};
+          obj.firstName = arr[i].firstName;
+          obj.lastName = arr[i].lastName;
+          obj.agencyName = arr[i].agencyId.agencyName;
+          obj.developerEmail = "";
+          obj.developerTechnologies = arr[i].developerTechnologies
+            .map((element) => element.technologyName)
+            .join(", ");
+          obj.developerDesignation = arr[i].developerDesignation;
+          obj.developerRole = "";
+          obj.developerExperience = arr[i].developerExperience;
+          obj.developerPriceRange = arr[i].developerPriceRange;
+          obj.expectedPrice = arr[i].expectedPrice;
+          obj.isDeveloperActive = arr[i].isDeveloperActive;
+          obj.isDeveloperVerified = arr[i].isVerified;
+          obj.developerAvailability = arr[i].developerAvailability;
+          obj.developerDocuments = arr[i].developerDocuments
+            .map((element) => element.documentLink)
+            .join(", ");
+          data.push(obj);
+        }
+        //creating excel file
+        const newData = JSON.stringify(data);
+        const finalData = JSON.parse(newData);
+        const newWorkbook = xlsx.utils.book_new();
+        const newWorksheet = xlsx.utils.json_to_sheet(finalData);
+        xlsx.utils.book_append_sheet(newWorkbook, newWorksheet, "userInfo");
+        const file = __dirname + "/../myDbFiles/availableDevelopers.xlsx";
+        xlsx.writeFile(newWorkbook, file);
+        //downloading excel file
+        let filename = path.basename(file);
+        let mimetype = mime.lookup(file);
+        res.setHeader(
+          "Content-disposition",
+          "attachment; filename=" + filename
+        );
+        res.setHeader("Content-type", mimetype);
+        let filestream = fs.createReadStream(file);
+        await filestream.pipe(res);
+      }
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
+  getUnavailableDevelopers: async (req, res) => {
+    try {
+      const { unavailable } = req.params;
+      if (unavailable) {
+        let arr = await Developer.find({ developerAvailability: false })
+          .populate({
+            path: "developerTechnologies",
+            select: { _id: 0, technologyName: 1 },
+          })
+          .populate({
+            path: "agencyId",
+            select: { _id: 0, agencyName: 1 },
+          })
+          // .populate({
+          //   path: "developerRoles",
+          //   select: { _id: 0, roleName: 1 },
+          // });
+        let data = [];
+        for (let i = 0; i < arr.length; i++) {
+          let obj = {};
+          obj.firstName = arr[i].firstName;
+          obj.lastName = arr[i].lastName;
+          obj.agencyName = arr[i].agencyId.agencyName;
+          obj.developerEmail = "";
+          obj.developerTechnologies = arr[i].developerTechnologies
+            .map((element) => element.technologyName)
+            .join(", ");
+          obj.developerDesignation = arr[i].developerDesignation;
+          obj.developerRole = "";
+          obj.developerExperience = arr[i].developerExperience;
+          obj.developerPriceRange = arr[i].developerPriceRange;
+          obj.expectedPrice = arr[i].expectedPrice;
+          obj.isDeveloperActive = arr[i].isDeveloperActive;
+          obj.isDeveloperVerified = arr[i].isVerified;
+          obj.developerAvailability = arr[i].developerAvailability;
+          obj.developerDocuments = arr[i].developerDocuments
+            .map((element) => element.documentLink)
+            .join(", ");
+          data.push(obj);
+        }
+        //creating excel file
+        const newData = JSON.stringify(data);
+        const finalData = JSON.parse(newData);
+        const newWorkbook = xlsx.utils.book_new();
+        const newWorksheet = xlsx.utils.json_to_sheet(finalData);
+        xlsx.utils.book_append_sheet(newWorkbook, newWorksheet, "userInfo");
+        const file = __dirname + "/../myDbFiles/unavailableDevelopers.xlsx";
+        xlsx.writeFile(newWorkbook, file);
+        //downloading excel file
+        let filename = path.basename(file);
+        let mimetype = mime.lookup(file);
+        res.setHeader(
+          "Content-disposition",
+          "attachment; filename=" + filename
+        );
+        res.setHeader("Content-type", mimetype);
+        let filestream = fs.createReadStream(file);
+        await filestream.pipe(res);
+      }
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
 };
 
 module.exports = developer;
