@@ -129,13 +129,16 @@ const clientsCtrl = {
         limit: +limit || 20,
         select: "-password",
       };
-      const clients = await Client.find({
-        $or: [
-          { companyName: { $regex: req.params.key } },
-          { userEmail: { $regex: req.params.key } },
-          { userEmail: { $regex: req.params.key } },
-        ],
-      },'-password');
+      const clients = await Client.find(
+        {
+          $or: [
+            { companyName: { $regex: req.params.key } },
+            { userEmail: { $regex: req.params.key } },
+            { userEmail: { $regex: req.params.key } },
+          ],
+        },
+        "-password"
+      );
       res.status(200).json({ success: true, clients });
     } catch (error) {
       return res.status(500).json({ msg: error.message });
