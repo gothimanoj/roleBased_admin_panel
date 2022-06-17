@@ -377,13 +377,23 @@ const developer = {
       xlsx.utils.book_append_sheet(newWorkbook, newWorksheet, "userInfo");
       const file = __dirname + `/../myDbFiles/${file_name}.xlsx`;
       xlsx.writeFile(newWorkbook, file);
-      //downloading excel file
-      let filename = path.basename(file);
-      let mimetype = mime.lookup(file);
-      res.setHeader("Content-disposition", "attachment; filename=" + filename);
-      res.setHeader("Content-type", mimetype);
-      let filestream = fs.createReadStream(file);
-      await filestream.pipe(res);
+      res.setHeader(
+        "Content-Type",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      );
+      res.setHeader("Content-Disposition", "attachment; filename=" + file_name);
+
+      await newWorkbook.xlsx.write(res);
+
+      res.end();
+      // return res.end();
+      // //downloading excel file
+      // let filename = path.basename(file);
+      // let mimetype = mime.lookup(file);
+      // res.setHeader("Content-disposition", "attachment; filename=" + filename);
+      // res.setHeader("Content-type", mimetype);
+      // let filestream = fs.createReadStream(file);
+      // await filestream.pipe(res);
     } catch (err) {
       return res.status(500).json({ msg: err.message });
     }
