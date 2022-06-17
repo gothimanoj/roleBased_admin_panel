@@ -116,6 +116,7 @@ const agenciesCtrl = {
               createdAt: 1,
               AgenciesDevelopers: 1,
               hiredevelopers: 1,
+              userEmail: 1,
             },
           },
         ]);
@@ -154,6 +155,7 @@ const agenciesCtrl = {
               incorporationDate: 1,
               agencyTeamSize: 1,
               createdAt: 1,
+              userEmail: 1,
             },
           },
         ]);
@@ -197,6 +199,7 @@ const agenciesCtrl = {
               incorporationDate: 1,
               agencyTeamSize: 1,
               createdAt: 1,
+              userEmail: 1,
             },
           },
         ]);
@@ -236,6 +239,7 @@ const agenciesCtrl = {
               incorporationDate: 1,
               agencyTeamSize: 1,
               createdAt: 1,
+              userEmail: 1,
             },
           },
         ]);
@@ -265,22 +269,23 @@ const agenciesCtrl = {
               foreignField: "agencyId",
               as: "developers",
             },
-          },{
-            
-             $lookup: {
+          },
+          {
+            $lookup: {
               from: "users",
-             let:{id:"$assignedToUserId"},
-             pipeline:[
-               {
-                 $match:{
-                   $expr:{$eq:["$_id","$$id"]}
-                 }
-               },{
-                 $project:{
-                  firstName:1
-                 }
-               }
-             ],
+              let: { id: "$assignedToUserId" },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: { $eq: ["$_id", "$$id"] },
+                  },
+                },
+                {
+                  $project: {
+                    firstName: 1,
+                  },
+                },
+              ],
               as: "assignedToUserId",
             },
           },
@@ -299,7 +304,8 @@ const agenciesCtrl = {
               agencyTeamSize: 1,
               createdAt: 1,
               developersCount: { $size: "$developers" },
-              assignedToUserId:1
+              assignedToUserId: 1,
+              userEmail: 1,
             },
           },
         ]);
@@ -404,6 +410,7 @@ const agenciesCtrl = {
               createdAt: 1,
               ...(req.user.role == "User" ? {} : { requestedByUser: 1 }),
               userRequested: 1,
+              userEmail: 1,
             },
           },
         ]);
@@ -638,14 +645,14 @@ const agenciesCtrl = {
     try {
       const agencyName = await Agency.aggregate([
         ...(req.user.role == "User"
-        ? [
-            {
-              $match: {
-                assignedToUserId: mongoose.Types.ObjectId(req.user._id),
+          ? [
+              {
+                $match: {
+                  assignedToUserId: mongoose.Types.ObjectId(req.user._id),
+                },
               },
-            },
-          ]
-        : []),
+            ]
+          : []),
         {
           $project: {
             agencyName: 1,
