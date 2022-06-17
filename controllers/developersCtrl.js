@@ -384,9 +384,6 @@ const developer = {
       res.setHeader("Content-type", mimetype);
       let filestream = fs.createReadStream(file);
       await filestream.pipe(res);
-      setTimeout(() => {
-        fs.unlinkSync(file);
-      }, 10);
     } catch (err) {
       return res.status(500).json({ msg: err.message });
     }
