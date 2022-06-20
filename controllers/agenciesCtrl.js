@@ -4,6 +4,7 @@ const Project = require("../models/projectsModel");
 const mongoose = require("mongoose");
 const HireDeveloper = require("../models/hireDevelopersModel");
 const Developer = require("../models/developersModel");
+const Notification = require("../models/notificationsModel");
 const agenciesCtrl = {
   getAllAgencies: async (req, res) => {
     try {
@@ -660,6 +661,25 @@ const agenciesCtrl = {
         },
       ]);
       return res.status(200).json({ success: true, agencyName });
+    } catch (error) {
+      return res.status(500).json({ msg: error.message });
+    }
+  },
+
+  notificationValidation: async (req, res) => {
+    try {
+      const { value, id } = req.params;
+      if (parseInt(value))
+        await Notification.updateOne(
+          { _id: mongoose.Types.ObjectId(id) },
+          { $set: { isVisible: true } }
+        );
+      else
+        await Notification.updateOne(
+          { _id: mongoose.Types.ObjectId(id) },
+          { $set: { isVisible: false } }
+        );
+      return res.status(200).json({ success: true });
     } catch (error) {
       return res.status(500).json({ msg: error.message });
     }
