@@ -4,11 +4,8 @@ const DeveloperRole = require("../models/developerRolesModel");
 const Technology = require("../models/technologiesModel");
 const Agency = require("../models/agenciesModel");
 const mongoose = require("mongoose");
-const xlsx = require("xlsx");
-const path = require("path");
-const mime = require("mime");
-const fs = require("fs");
-const axios = require("axios");
+const excelJS = require("exceljs");
+
 const developer = {
   getAllDeveloper: async (req, res) => {
     try {
@@ -369,31 +366,72 @@ const developer = {
           .join(", ");
         data.push(obj);
       }
-      //creating excel file
-      const newData = JSON.stringify(data);
-      const finalData = JSON.parse(newData);
-      const newWorkbook = xlsx.utils.book_new();
-      const newWorksheet = xlsx.utils.json_to_sheet(finalData);
-      xlsx.utils.book_append_sheet(newWorkbook, newWorksheet, "userInfo");
-      const file = __dirname + `/../myDbFiles/${file_name}.xlsx`;
-      xlsx.writeFile(newWorkbook, file);
+      const workbook = new excelJS.Workbook(); // Create a new workbook
+      const worksheet = workbook.addWorksheet("My Users"); // New Worksheet
+      // Column for data in excel. key must match data key
+      worksheet.columns = [
+        { header: "S no.", key: "s_no", width: 20 },
+        { header: "firstName", key: "firstName", width: 20 },
+        { header: "lastName", key: "lastName", width: 20 },
+        { header: "agencyName", key: "agencyName", width: 20 },
+        { header: "developerEmail", key: "developerEmail", width: 20 },
+        {
+          header: "developerTechnologies",
+          key: "developerTechnologies",
+          width: 20,
+        },
+        {
+          header: "developerDesignation",
+          key: "developerDesignation",
+          width: 20,
+        },
+        { header: "developerRole", key: "developerRole", width: 20 },
+        {
+          header: "developerExperience",
+          key: "developerExperience",
+          width: 20,
+        },
+        {
+          header: "developerPriceRange",
+          key: "developerPriceRange",
+          width: 20,
+        },
+        { header: "expectedPrice", key: "expectedPrice", width: 20 },
+        { header: "isDeveloperActive", key: "isDeveloperActive", width: 20 },
+        {
+          header: "isDeveloperVerified",
+          key: "isDeveloperVerified",
+          width: 20,
+        },
+        {
+          header: "developerAvailability",
+          key: "developerAvailability",
+          width: 20,
+        },
+        { header: "developerDocuments", key: "developerDocuments", width: 20 },
+      ];
+      // Looping through User data
+      let counter = 1;
+      data.forEach((user) => {
+        user.s_no = counter;
+        worksheet.addRow(user); // Add data in worksheet
+        counter++;
+      });
+      // Making first line in excel bold
+      worksheet.getRow(1).eachCell((cell) => {
+        cell.font = { bold: true };
+      });
       res.setHeader(
         "Content-Type",
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
       );
-      res.setHeader("Content-Disposition", "attachment; filename=" + file_name);
-
-      await newWorkbook.xlsx.write(res);
-
-      res.end();
-      // return res.end();
-      // //downloading excel file
-      // let filename = path.basename(file);
-      // let mimetype = mime.lookup(file);
-      // res.setHeader("Content-disposition", "attachment; filename=" + filename);
-      // res.setHeader("Content-type", mimetype);
-      // let filestream = fs.createReadStream(file);
-      // await filestream.pipe(res);
+      res.setHeader(
+        "Content-Disposition",
+        "attachment; filename=" + `${file_name}.xlsx`
+      );
+      return workbook.xlsx.write(res).then(function () {
+        res.status(200).end();
+      });
     } catch (err) {
       return res.status(500).json({ msg: err.message });
     }
