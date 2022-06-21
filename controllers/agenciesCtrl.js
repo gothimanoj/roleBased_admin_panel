@@ -699,8 +699,7 @@ const agenciesCtrl = {
             },
           },
         ]);
-        console.log("result : ", req.user);
-
+        
         let userEmail = [
           "guptamns3786@gmail.com",
           "bindu12patel@gmail.com",
