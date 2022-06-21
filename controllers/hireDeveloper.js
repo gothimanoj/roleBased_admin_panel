@@ -1,6 +1,8 @@
 require("dotenv").config();
 const HireDeveloper = require("../models/hireDevelopersModel");
 const mongoose = require("mongoose");
+const sendEmail = require("../helpers/mailHelper");
+
 const hireDeveloper = {
   getAllRequirement: async (req, res) => {
     try {
@@ -255,7 +257,6 @@ const hireDeveloper = {
           { $set: { isVerifiedByAdmin: true } }
         );
       } else {
-        // console.log("sending 0 value");
         await HireDeveloper.updateOne(
           { _id: mongoose.Types.ObjectId(id) },
           { $set: { isVerifiedByAdmin: false } }
