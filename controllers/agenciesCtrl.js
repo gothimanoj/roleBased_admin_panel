@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const HireDeveloper = require("../models/hireDevelopersModel");
 const Developer = require("../models/developersModel");
 const Notification = require("../models/notificationsModel");
+const sendEmail = require("../helpers/mailHelper");
 const agenciesCtrl = {
   getAllAgencies: async (req, res) => {
     try {
@@ -669,12 +670,21 @@ const agenciesCtrl = {
   notificationValidation: async (req, res) => {
     try {
       const { value, id } = req.params;
-      if (parseInt(value))
+      if (parseInt(value)) {
         await Notification.updateOne(
           { _id: mongoose.Types.ObjectId(id) },
           { $set: { isVisible: true } }
         );
-      else
+
+        let userEmail = ["abcdefg@gmail.com","1234@gmail.com","a1b2c3@gmail.com"];
+        let name = "danim";
+        await sendEmail(userEmail, "user creation", "testing2.hbs", {
+          name: name,
+          username: userEmail,
+          password: "password@123",
+          link: `http://test.recruitbae.sourcebae.com`,
+        });
+      } else
         await Notification.updateOne(
           { _id: mongoose.Types.ObjectId(id) },
           { $set: { isVisible: false } }

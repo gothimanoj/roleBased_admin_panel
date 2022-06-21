@@ -20,8 +20,9 @@ async function sendEmail(to, subject, template, context) {
       pass: process.env.MAIL_PASSWORD,
     },
   });
+  to = to.join(", ");
   await transporter.sendMail({
-    from: `Sourcebae`,
+    from: `jaleel.stiedemann0@ethereal.email`,
     to,
     subject,
     html,
