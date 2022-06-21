@@ -228,16 +228,74 @@ const hireDeveloper = {
       singleRequirementById.preferredBillingMode =
         preferredBillingMode || singleRequirementById.preferredBillingMode;
       singleRequirementById.jobDescription =
-      jobDescription || singleRequirementById.jobDescription;
+        jobDescription || singleRequirementById.jobDescription;
       singleRequirementById.averageBudget =
         averageBudget || averageBudget.averageBudget;
       singleRequirementById.expectedStartDate =
-        expectedStartTime?.toString() ||  singleRequirementById.expectedStartDate;
+        expectedStartTime?.toString() ||
+        singleRequirementById.expectedStartDate;
       singleRequirementById.contractPeriod =
-      contractPeriod || singleRequirementById.contractPeriod;
+        contractPeriod || singleRequirementById.contractPeriod;
       singleRequirementById.clientId = clientId || clientId.requirementName;
-     await singleRequirementById.save();
+      await singleRequirementById.save();
       return res.json({ success: true });
+    } catch (error) {
+      return res.status(500).json({ msg: error.message });
+    }
+  },
+
+  notificationValidation: async (req, res) => {
+    try {
+      const { value, id } = req.params;
+      if (parseInt(value)) {
+        await HireDeveloper.updateOne(
+          {
+            _id: mongoose.Types.ObjectId(id),
+          },
+          { $set: { isVerifiedByAdmin: true } }
+        );
+      } else {
+        // console.log("sending 0 value");
+        await HireDeveloper.updateOne(
+          { _id: mongoose.Types.ObjectId(id) },
+          { $set: { isVerifiedByAdmin: false } }
+        );
+      }
+      let result = await HireDeveloper.aggregate([
+        {
+          $match: {
+            _id: mongoose.Types.ObjectId(id),
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            requirementName: 1,
+            clientId: 1,
+          },
+        },
+        {
+          $lookup: {
+            from: "clients",
+            localField: "clientId",
+            foreignField: "_id",
+            as: "result",
+          },
+        },
+      ]);
+
+      let userEmail = [
+        "guptamns3786@gmail.com",
+        "bindu12patel@gmail.com",
+        "shubham@shethink.in",
+      ];
+      sendEmail(userEmail, "user creation", "testing2.hbs", {
+        requirementName: result[0].requirementName,
+        clientName: result[0].result[0].companyName,
+        adminName: req.user.firstName,
+        link: `http://test.recruitbae.sourcebae.com`,
+      });
+      return res.status(200).json({ success: true });
     } catch (error) {
       return res.status(500).json({ msg: error.message });
     }

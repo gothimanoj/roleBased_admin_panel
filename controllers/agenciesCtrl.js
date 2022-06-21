@@ -665,63 +665,6 @@ const agenciesCtrl = {
       return res.status(500).json({ msg: error.message });
     }
   },
-
-  notificationValidation: async (req, res) => {
-    try {
-      const { value, id } = req.params;
-      if (parseInt(value)) {
-        await HireDeveloper.updateOne(
-          {
-            _id: mongoose.Types.ObjectId(id),
-          },
-          { $set: { isVerifiedByAdmin: true } }
-        );
-        let result = await HireDeveloper.aggregate([
-          {
-            $match: {
-              _id: mongoose.Types.ObjectId(id),
-            },
-          },
-          {
-            $project: {
-              _id: 0,
-              requirementName: 1,
-              clientId: 1,
-            },
-          },
-          {
-            $lookup: {
-              from: "clients",
-              localField: "clientId",
-              foreignField: "_id",
-              as: "result",
-            },
-          },
-        ]);
-
-        let userEmail = [
-          "guptamns3786@gmail.com",
-          "bindu12patel@gmail.com",
-          "shubham@shethink.in",
-        ];
-        sendEmail(userEmail, "user creation", "testing2.hbs", {
-          requirementName: result[0].requirementName,
-          clientName: result[0].result[0].companyName,
-          adminName: req.user.firstName,
-          link: `http://test.recruitbae.sourcebae.com`,
-        });
-      } else {
-        // console.log("sending 0 value");
-        await HireDeveloper.updateOne(
-          { _id: mongoose.Types.ObjectId(id) },
-          { $set: { isVerifiedByAdmin: false } }
-        );
-      }
-      return res.status(200).json({ success: true });
-    } catch (error) {
-      return res.status(500).json({ msg: error.message });
-    }
-  },
 };
 
 module.exports = agenciesCtrl;
