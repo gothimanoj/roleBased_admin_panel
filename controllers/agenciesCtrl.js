@@ -674,9 +674,8 @@ const agenciesCtrl = {
           {
             _id: mongoose.Types.ObjectId(id),
           },
-          { $set: { isVisible: true } }
+          { $set: { isVerifiedByAdmin: true } }
         );
-
         let result = await HireDeveloper.aggregate([
           {
             $match: {
@@ -699,7 +698,7 @@ const agenciesCtrl = {
             },
           },
         ]);
-        
+
         let userEmail = [
           "guptamns3786@gmail.com",
           "bindu12patel@gmail.com",
@@ -715,7 +714,7 @@ const agenciesCtrl = {
         // console.log("sending 0 value");
         await HireDeveloper.updateOne(
           { _id: mongoose.Types.ObjectId(id) },
-          { $set: { isVisible: false } }
+          { $set: { isVerifiedByAdmin: false } }
         );
       }
       return res.status(200).json({ success: true });

@@ -75,6 +75,10 @@ const hireDeveloperSchema = new mongoose.Schema(
       default: true,
     },
     agenciesMatched: [agenciesMatchedSchema],
+    isVerifiedByAdmin: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,
