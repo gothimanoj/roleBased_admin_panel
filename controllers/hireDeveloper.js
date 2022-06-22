@@ -51,6 +51,7 @@ const hireDeveloper = {
             as: "clientId",
           },
         },
+        { $sort: { createdAt: -1 } },
       ]);
 
       const allRequirement = await HireDeveloper.aggregatePaginate(
