@@ -254,12 +254,12 @@ const hireDeveloper = {
           {
             _id: mongoose.Types.ObjectId(id),
           },
-          { $set: { isVerifiedByAdmin: true } }
+          { $set: { isVerifiedByAdmin: true, isVisible: true } }
         );
       } else {
         await HireDeveloper.updateOne(
           { _id: mongoose.Types.ObjectId(id) },
-          { $set: { isVerifiedByAdmin: false } }
+          { $set: { isVerifiedByAdmin: false, isVisible: false } }
         );
       }
       let result = await HireDeveloper.aggregate([
