@@ -113,9 +113,10 @@ const clientsCtrl = {
   getDetailsForRequestedDeveloper: async (req, res) => {
     try {
       const { id } = req.params;
-      const Details = await HireDevelopers.findById(id)
-        .populate("agenciesMatched.agencyId", "agencyName")
-        .populate("developerTechnologiesRequired", "-_id technologyName");
+      // const Details = await HireDevelopers.findById(id)
+      //   .populate("agenciesMatched.agencyId", "agencyName")
+      //   .populate("developerTechnologiesRequired", "-_id technologyName");
+      const Details = await HireDevelopers.findOne({_id:id})
       return res.status(200).json({ success: true, Details });
     } catch (error) {
       return res.status(500).json({ msg: error.message });
