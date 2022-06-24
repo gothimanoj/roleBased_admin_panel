@@ -4,6 +4,7 @@ const Project = require("../models/projectsModel");
 const mongoose = require("mongoose");
 const HireDeveloper = require("../models/hireDevelopersModel");
 const Developer = require("../models/developersModel");
+const sendEmail = require("../helpers/mailHelper");
 const agenciesCtrl = {
   getAllAgencies: async (req, res) => {
     try {

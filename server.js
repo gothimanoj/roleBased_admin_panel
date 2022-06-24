@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 require('dotenv').config()
 const express = require('express')
 const mongoose = require('mongoose')
@@ -7,37 +8,44 @@ app.use(express.json())
 app.use(express.urlencoded({extended:true}))
 app.use(cors())
 
+=======
+require("dotenv").config();
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
+const app = express();
+app.use(express.json());
+app.use(cors());
+const dbService = require("./config/mysqlConfig");
+require("./helpers/mailHelper");
+>>>>>>> 53baee8ec2df8a6164de2b96f6c0332f5ad34b83
 // Routes
-app.use('/api/user', require('./routes/userRouter'))
-app.use('/api/agencies', require('./routes/agenciesRouter'))
-app.use('/api/clients', require('./routes/clientsRouter'))
-app.use('/api/hiredeveloper', require('./routes/hireDeveloper'))
-app.use('/api/developer', require('./routes/developersRouter'))
+app.use("/api/user", require("./routes/userRouter"));
+app.use("/api/agencies", require("./routes/agenciesRouter"));
+app.use("/api/clients", require("./routes/clientsRouter"));
+app.use("/api/hiredeveloper", require("./routes/hireDeveloper"));
+app.use("/api/developer", require("./routes/developersRouter"));
+app.use("/api/request", require("./routes/testRequest"));
 
-
-app.use('/image',express.static(__dirname+'/image'));
-
+app.use("/image", express.static(__dirname + "/image"));
 
 // Connect to mongodb
-const URI = process.env.MONGODB_URL
-mongoose.connect(URI, {
+const URI = process.env.MONGODB_URL;
+mongoose.connect(
+  URI,
+  {
     useCreateIndex: true,
     useFindAndModify: false,
     useNewUrlParser: true,
-    useUnifiedTopology: true
-}, err => {
-    if(err) throw err;
-    console.log("Connected to mongodb")
-})
+    useUnifiedTopology: true,
+  },
+  (err) => {
+    if (err) throw err;
+    console.log("Connected to mongodb");
+  }
+);
 
-
-const PORT = process.env.PORT || 4000
+const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
-    console.log('Server is running on port', PORT)
-})
-
-
-
-
-
-
+  console.log("Server is running on port", PORT);
+});

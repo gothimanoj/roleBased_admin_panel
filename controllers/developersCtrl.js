@@ -168,6 +168,12 @@ const developer = {
         },
       });
 
+      aggregation.push({
+        $sort: {
+          createdAt:-1
+        }
+      });
+
       const aggregatePipeline = Developer.aggregate(aggregation);
       const getAllDeveloper = await Developer.aggregatePaginate(
         aggregatePipeline,

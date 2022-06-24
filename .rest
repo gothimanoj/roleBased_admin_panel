@@ -23,8 +23,8 @@ get http://localhost:4000/api/user/getUser
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjU1NGVjYmI2NDE5YTk3YTU4ZjIwNzMiLCJpYXQiOjE2NTEzMjAwMDl9.XP82XGPD_jd3UFH4iaSyj7pSPrRPR_t2GliCkaB67KU"
 
 ###########
-get http://localhost:3000/api/agencies/getAllAgencies/6/1/63
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjU1NGVjYmI2NDE5YTk3YTU4ZjIwNzMiLCJpYXQiOjE2NTE0OTY5NDV9.Iy3bzqIZ6-We9x-ZW_yL12ERgX88O_08pgVy2EsXtxI
+get http://localhost:4000/api/agencies/getAllAgencies/1/1/20
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjU1NGVjYmI2NDE5YTk3YTU4ZjIwNzMiLCJpYXQiOjE2NTI4MTYyMzR9.-dN5wvN4LybzSbOqEmW2c0uU3d5-KX-eFInZhyDNDR8
 
 
 ###########
@@ -193,3 +193,19 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjU1NGVjY
 ############
 GET http://localhost:4000/api/developer/getAllTech
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjU1NGVjYmI2NDE5YTk3YTU4ZjIwNzMiLCJpYXQiOjE2NTE0OTY5NDV9.Iy3bzqIZ6-We9x-ZW_yL12ERgX88O_08pgVy2EsXtxI
+
+
+
+
+############
+POST  http://localhost:4000/api/request/newRequest?agencyId=6298af751213a51ad0d01348
+
+
+
+############
+POST  http://localhost:4000/api/request/createOrganization?agencyId=6298af751213a51ad0d01348
+
+
+
+############
+GET  http://localhost:4000/api/request/getRequest?tab=2

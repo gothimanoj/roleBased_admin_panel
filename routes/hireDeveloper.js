@@ -9,8 +9,20 @@ router.get(
 );
 router.get("/singleRequirement/:id", auth, hireDeveloper.singleRequirement);
 
-
-router.get("/singleRequirementById/:id", auth, hireDeveloper.singleRequirementById);
-router.patch("/updateSingleRequirementById/:id", auth, hireDeveloper.updateSingleRequirementById);
+router.get(
+  "/singleRequirementById/:id",
+  auth,
+  hireDeveloper.singleRequirementById
+);
+router.patch(
+  "/updateSingleRequirementById/:id",
+  auth,
+  hireDeveloper.updateSingleRequirementById
+);
+router.patch(
+  "/notificationValidation/:value/:id",
+  auth,
+  hireDeveloper.notificationValidation
+);
 
 module.exports = router;
