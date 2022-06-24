@@ -1,14 +1,3 @@
-<<<<<<< HEAD
-require('dotenv').config()
-const express = require('express')
-const mongoose = require('mongoose')
-const cors = require('cors')
-const app = express()
-app.use(express.json())
-app.use(express.urlencoded({extended:true}))
-app.use(cors())
-
-=======
 require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
@@ -18,7 +7,6 @@ app.use(express.json());
 app.use(cors());
 const dbService = require("./config/mysqlConfig");
 require("./helpers/mailHelper");
->>>>>>> 53baee8ec2df8a6164de2b96f6c0332f5ad34b83
 // Routes
 app.use("/api/user", require("./routes/userRouter"));
 app.use("/api/agencies", require("./routes/agenciesRouter"));
