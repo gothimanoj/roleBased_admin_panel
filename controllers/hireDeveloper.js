@@ -250,7 +250,8 @@ const hireDeveloper = {
   notificationValidation: async (req, res) => {
     try {
       const { value, id } = req.params;
-      if (parseInt(value)) {
+      let check = parseInt(value);
+      if (check) {
         await HireDeveloper.updateOne(
           {
             _id: mongoose.Types.ObjectId(id),

@@ -67,6 +67,14 @@ const hireDeveloperSchema = new mongoose.Schema(
     contractPeriod: {
       type: String,
     },
+    isVisible:{
+      type:Boolean,
+      default:false
+    },
+    isVerifiedByAdmin:{
+      type:Boolean,
+      default:false
+    },
     jobDescription: {
       type: String,
     },
