@@ -628,6 +628,7 @@ const agenciesCtrl = {
 
   addUserInAgency: async (req, res) => {
     try {
+      console.log("check");
       let findAgency = await Agency.findOne({ _id: req.params.id });
 
       const { userId } = req.body;
