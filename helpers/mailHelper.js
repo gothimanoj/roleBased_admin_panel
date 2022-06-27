@@ -22,7 +22,7 @@ async function sendEmail(to, subject, template, context) {
   });
   to = to.join(", ");
   await transporter.sendMail({
-    from: `theo.cartwright77@ethereal.email`,
+    from: `raegan.buckridge12@ethereal.email`,
     to,
     subject,
     html,
