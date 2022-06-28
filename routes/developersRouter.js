@@ -10,7 +10,8 @@ router.get('/getDeveloperRole',auth,developerCtrl.getAllRole)
 router.post('/setDeveloper',auth,upload.single([ {name: 'resume', maxCount: 1 },{name: 'marksheets', maxCount: 4 }]),developerCtrl.setDeveloper)
 router.patch("/updateSingleDeveloper/:id",auth, developerCtrl.updateSingleDeveloper);
 router.get('/getAllTech',auth,developerCtrl.getAllTech)
-router.get('/getSpecificDevelopers',developerCtrl.getSpecificDevelopers);
+router.get('/getSpecificDevelopers',auth,developerCtrl.getSpecificDevelopers);
+router.post("/setInterviewSchedule/:value/:id",auth,developerCtrl.setInterviewSchedule);
 
 
 

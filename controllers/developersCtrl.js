@@ -3,8 +3,39 @@ const Developer = require("../models/developersModel");
 const DeveloperRole = require("../models/developerRolesModel");
 const Technology = require("../models/technologiesModel");
 const Agency = require("../models/agenciesModel");
+const InterviewScheduleModel = require("../models/interviewSchedule");
+const User = require("../models/userModel");
 const mongoose = require("mongoose");
 const excelJS = require("exceljs");
+const sendEmail = require("../helpers/mailHelper");
+const nodeCron = require("node-cron");
+
+nodeCron.schedule("0 0 10 * * *", async () => {
+  let schedules = await InterviewScheduleModel.find({});
+  for (let element of schedules) {
+    if (
+      element.date.getDate() - 1 === new Date().getDate() &&
+      element.date.getMonth() === new Date().getMonth() &&
+      element.date.getFullYear() === new Date().getFullYear()
+    ) {
+      let result = await Developer.aggregate([
+        { $match: { _id: element.developerId } },
+        { $project: { _id: 0, firstName: 1, lastName: 1 } },
+      ]);
+      let emailIds = await User.aggregate([
+        { $match: { role: "Admin" } },
+        { $project: { _id: 0, email: 1 } },
+      ]);
+      let adminEmail = emailIds.map((element) => element.email);
+      sendEmail(adminEmail, "Interview Schedule for tomorrow", "testing4.hbs", {
+        developerName: result[0].firstName + " " + result[0].lastName,
+        onDate: element.date,
+        onTime: element.time,
+        meetLink: element.googleMeetLink,
+      });
+    }
+  }
+});
 
 const developer = {
   getAllDeveloper: async (req, res) => {
@@ -170,8 +201,8 @@ const developer = {
 
       aggregation.push({
         $sort: {
-          createdAt:-1
-        }
+          createdAt: -1,
+        },
       });
 
       const aggregatePipeline = Developer.aggregate(aggregation);
@@ -438,6 +469,39 @@ const developer = {
       return workbook.xlsx.write(res).then(function () {
         res.status(200).end();
       });
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
+  setInterviewSchedule: async (req, res) => {
+    try {
+      const { time, date, meetLink } = req.body;
+      const { id, value } = req.params;
+      let check = Number(value) ? true : false;
+      let doc = new InterviewScheduleModel({
+        date,
+        time,
+        googleMeetLink: meetLink,
+        developerId: id,
+        isInterviewScheduled: check,
+      });
+      await doc.save();
+      let result = await Developer.aggregate([
+        { $match: { _id: doc.developerId } },
+        { $project: { _id: 0, firstName: 1, lastName: 1 } },
+      ]);
+      let emailIds = await User.aggregate([
+        { $match: { role: "Admin" } },
+        { $project: { _id: 0, email: 1 } },
+      ]);
+      let adminEmail = emailIds.map((element) => element.email);
+      sendEmail(adminEmail, "Interview Schedule", "testing3.hbs", {
+        developerName: result[0].firstName + " " + result[0].lastName,
+        onDate: doc.date,
+        onTime: doc.time,
+        meetLink: doc.googleMeetLink,
+      });
+      return res.status(200).json({ success: true });
     } catch (err) {
       return res.status(500).json({ msg: err.message });
     }

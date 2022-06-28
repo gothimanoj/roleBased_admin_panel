@@ -32,6 +32,7 @@
     "multer": "^1.4.3",
     "mysql": "github:mysqljs/mysql",
     "mysql2": "^2.3.3",
+    "node-cron": "^3.0.1",
     "nodemailer": "^6.7.5"
   },
   "devDependencies": {
