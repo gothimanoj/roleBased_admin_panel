@@ -25,7 +25,8 @@ nodeCron.schedule("0 0 10 * * *", async () => {
     if (
       element.date.getDate() - 1 === new Date().getDate() &&
       element.date.getMonth() === new Date().getMonth() &&
-      element.date.getFullYear() === new Date().getFullYear()
+      element.date.getFullYear() === new Date().getFullYear() &&
+      element.isInterviewScheduled === true
     ) {
       let emailIds = await User.aggregate([
         { $match: { role: "Admin" } },
@@ -541,21 +542,23 @@ const developer = {
         });
         await doc2.save();
       }
-      sendEmail(adminEmail, "Interview Schedule", "testing3.hbs", obj);
+      if (check) {
+        sendEmail(adminEmail, "Interview Schedule", "testing3.hbs", obj);
+      }
       return res.status(200).json({ success: true });
     } catch (err) {
       return res.status(500).json({ msg: err.message });
     }
   },
-  getInterviewHistory : async(req, res)=>{
+  getInterviewHistory: async (req, res) => {
     try {
-      const {id}=req.params;
-      let result = await InterviewHistory.findOne({developerId:id});
-      return res.status(200).json({success:"true",result});
+      const { id } = req.params;
+      let result = await InterviewHistory.findOne({ developerId: id });
+      return res.status(200).json({ success: "true", result });
     } catch (err) {
       return res.status(500).json({ msg: err.message });
     }
-  }
+  },
 };
 
 module.exports = developer;
