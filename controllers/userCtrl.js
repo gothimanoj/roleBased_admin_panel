@@ -58,7 +58,6 @@ const userCtrl = {
       if (email) {
         user = await Users.findOne({ email });
       }
-      console.log(user);
       if (user) {
         const validPassword = await bcrypt.compare(
           password,

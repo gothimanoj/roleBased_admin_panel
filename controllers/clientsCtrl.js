@@ -116,7 +116,7 @@ const clientsCtrl = {
       // const Details = await HireDevelopers.findById(id)
       //   .populate("agenciesMatched.agencyId", "agencyName")
       //   .populate("developerTechnologiesRequired", "-_id technologyName");
-      const Details = await HireDevelopers.findOne({_id:id})
+      const Details = await HireDevelopers.findOne({ _id: id });
       return res.status(200).json({ success: true, Details });
     } catch (error) {
       return res.status(500).json({ msg: error.message });
@@ -141,6 +141,14 @@ const clientsCtrl = {
         "-password"
       );
       res.status(200).json({ success: true, clients });
+    } catch (error) {
+      return res.status(500).json({ msg: error.message });
+    }
+  },
+  getClients: async (req, res) => {
+    try {
+      let result = await Client.aggregate([{ $project: { companyName: 1 } }]);
+      return res.status(200).json({ success: "true", result });
     } catch (error) {
       return res.status(500).json({ msg: error.message });
     }

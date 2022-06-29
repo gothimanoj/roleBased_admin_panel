@@ -3,7 +3,8 @@ const Developer = require("../models/developersModel");
 const DeveloperRole = require("../models/developerRolesModel");
 const Technology = require("../models/technologiesModel");
 const Agency = require("../models/agenciesModel");
-const InterviewScheduleModel = require("../models/interviewSchedule");
+const interviewScheduleModel = require("../models/interviewSchedule");
+const InterviewHistory = require("../models/interviewHistory");
 const User = require("../models/userModel");
 const mongoose = require("mongoose");
 const excelJS = require("exceljs");
@@ -11,27 +12,35 @@ const sendEmail = require("../helpers/mailHelper");
 const nodeCron = require("node-cron");
 
 nodeCron.schedule("0 0 10 * * *", async () => {
-  let schedules = await InterviewScheduleModel.find({});
+  let schedules = await interviewScheduleModel
+    .find({})
+    .populate({
+      path: "developerId",
+      select: { _id: 0, firstName: 1, lastName: 1 },
+    })
+    .populate({ path: "clientId", select: { _id: 0, companyName: 1 } })
+    .populate({ path: "agencyId", select: { _id: 0, agencyName: 1 } });
+  console.log(schedules);
   for (let element of schedules) {
     if (
       element.date.getDate() - 1 === new Date().getDate() &&
       element.date.getMonth() === new Date().getMonth() &&
       element.date.getFullYear() === new Date().getFullYear()
     ) {
-      let result = await Developer.aggregate([
-        { $match: { _id: element.developerId } },
-        { $project: { _id: 0, firstName: 1, lastName: 1 } },
-      ]);
       let emailIds = await User.aggregate([
         { $match: { role: "Admin" } },
         { $project: { _id: 0, email: 1 } },
       ]);
       let adminEmail = emailIds.map((element) => element.email);
       sendEmail(adminEmail, "Interview Schedule for tomorrow", "testing4.hbs", {
-        developerName: result[0].firstName + " " + result[0].lastName,
+        developerName:
+          element.developerId.firstName + " " + element.developerId.lastName,
         onDate: element.date,
         onTime: element.time,
         meetLink: element.googleMeetLink,
+        clientName: element.clientId.companyName,
+        agencyName: element.agencyId.agencyName,
+        status: element.status,
       });
     }
   }
@@ -475,37 +484,78 @@ const developer = {
   },
   setInterviewSchedule: async (req, res) => {
     try {
-      const { time, date, meetLink } = req.body;
-      const { id, value } = req.params;
+      const { time, date, meetLink, clientId } = req.body;
+      const { developerId, value } = req.params;
+      let agencyId = await Developer.aggregate([
+        { $match: { _id: mongoose.Types.ObjectId(developerId) } },
+        { $project: { _id: 0, agencyId: 1 } },
+      ]);
+
       let check = Number(value) ? true : false;
-      let doc = new InterviewScheduleModel({
+      let doc = new interviewScheduleModel({
         date,
         time,
         googleMeetLink: meetLink,
-        developerId: id,
+        developerId: developerId,
         isInterviewScheduled: check,
+        clientId: clientId,
+        agencyId: agencyId[0].agencyId,
+        status: "pending",
       });
       await doc.save();
-      let result = await Developer.aggregate([
-        { $match: { _id: doc.developerId } },
-        { $project: { _id: 0, firstName: 1, lastName: 1 } },
-      ]);
+      let result = await interviewScheduleModel
+        .find({ developerId })
+        .sort({ createdAt: -1 })
+        .populate({
+          path: "developerId",
+          select: { _id: 0, firstName: 1, lastName: 1 },
+        })
+        .populate({ path: "clientId", select: { _id: 0, companyName: 1 } })
+        .populate({ path: "agencyId", select: { _id: 0, agencyName: 1 } });
       let emailIds = await User.aggregate([
         { $match: { role: "Admin" } },
         { $project: { _id: 0, email: 1 } },
       ]);
       let adminEmail = emailIds.map((element) => element.email);
-      sendEmail(adminEmail, "Interview Schedule", "testing3.hbs", {
-        developerName: result[0].firstName + " " + result[0].lastName,
-        onDate: doc.date,
-        onTime: doc.time,
-        meetLink: doc.googleMeetLink,
-      });
+      let obj = {
+        developerName:
+          result[0].developerId.firstName +
+          " " +
+          result[0].developerId.lastName,
+        onDate: result[0].date,
+        onTime: result[0].time,
+        meetLink: result[0].googleMeetLink,
+        clientName: result[0].clientId.companyName,
+        agencyName: result[0].agencyId.agencyName,
+        status: result[0].status,
+      };
+      let check2 = await InterviewHistory.findOneAndUpdate(
+        { developerId },
+        { $push: { history: obj } }
+      );
+      if (check2) {
+      } else {
+        let doc2 = new InterviewHistory({
+          developerId: developerId,
+          history: obj,
+        });
+        await doc2.save();
+      }
+      sendEmail(adminEmail, "Interview Schedule", "testing3.hbs", obj);
       return res.status(200).json({ success: true });
     } catch (err) {
       return res.status(500).json({ msg: err.message });
     }
   },
+  getInterviewHistory : async(req, res)=>{
+    try {
+      const {id}=req.params;
+      let result = await InterviewHistory.findOne({developerId:id});
+      return res.status(200).json({success:"true",result});
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  }
 };
 
 module.exports = developer;
