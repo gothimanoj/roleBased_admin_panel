@@ -3,6 +3,7 @@ const Developer = require("../models/developersModel");
 const DeveloperRole = require("../models/developerRolesModel");
 const Technology = require("../models/technologiesModel");
 const Agency = require("../models/agenciesModel");
+const Client = require("../models/clientsModel");
 const interviewScheduleModel = require("../models/interviewSchedule");
 const InterviewHistory = require("../models/interviewHistory");
 const DeveloperDeployment = require("../models/deploymentModel");
@@ -38,7 +39,8 @@ nodeCron.schedule("0 0 10 * * *", async () => {
         developerName:
           element.developerId.firstName + " " + element.developerId.lastName,
         onDate: element.date,
-        onTime: element.time,
+        startTime: element.startTime,
+        endTime: element.endTime,
         meetLink: element.googleMeetLink,
         clientName: element.clientId.companyName,
         agencyName: element.agencyId.agencyName,
@@ -486,7 +488,7 @@ const developer = {
   },
   setInterviewSchedule: async (req, res) => {
     try {
-      const { time, date, meetLink, clientId } = req.body;
+      const { startTime, endTime, date, meetLink, clientId } = req.body;
       const { developerId } = req.params;
       let agencyId = await Developer.aggregate([
         { $match: { _id: mongoose.Types.ObjectId(developerId) } },
@@ -494,7 +496,8 @@ const developer = {
       ]);
       let doc = new interviewScheduleModel({
         date,
-        time,
+        startTime,
+        endTime,
         googleMeetLink: meetLink,
         developerId: developerId,
         clientId: clientId,
@@ -522,7 +525,8 @@ const developer = {
           " " +
           result[0].developerId.lastName,
         onDate: result[0].date,
-        onTime: result[0].time,
+        startTime: result[0].startTime,
+        endTime: result[0].endTime,
         meetLink: result[0].googleMeetLink,
         clientName: result[0].clientId.companyName,
         agencyName: result[0].agencyId.agencyName,
@@ -557,16 +561,22 @@ const developer = {
   },
   developerDeployment: async (req, res) => {
     try {
-      const { clientName, startDate, endDate, contractDuration } = req.body;
+      const { clientId, startDate, endDate, contractDuration } = req.body;
       const { developerId } = req.params;
       let result = await Developer.findOne({
         _id: mongoose.Types.ObjectId(developerId),
       }).populate({ path: "agencyId", select: { _id: 1, agencyName: 1 } });
-      console.log(result);
+      let clientInfo = await Client.findOne({
+        _id: mongoose.Types.ObjectId(clientId),
+      });
+      // console.log(clientInfo);
       let doc = new DeveloperDeployment({
         developer: developerId,
         agency: result.agencyId._id,
-        clientName,
+        clientName: clientInfo.companyName,
+        contactPersonName: clientInfo.firstName + " " + clientInfo.lastName,
+        contactPersonEmail: clientInfo.userEmail,
+        contactPersonPhone: clientInfo.countryCode + clientInfo.userPhone,
         startDate,
         endDate,
         contractDuration,
@@ -575,7 +585,10 @@ const developer = {
       let obj = {
         developerName: result.firstName + " " + result.lastName,
         agencyName: result.agencyId.agencyName,
-        clientName: doc.clientName,
+        clientName: clientInfo.companyName,
+        contactPersonName: clientInfo.firstName + " " + clientInfo.lastName,
+        contactPersonEmail: clientInfo.userEmail,
+        contactPersonPhone: clientInfo.countryCode + clientInfo.userPhone,
         startDate: doc.startDate,
         endDate: doc.endDate,
         contractDuration: doc.contractDuration,
