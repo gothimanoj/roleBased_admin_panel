@@ -6,6 +6,7 @@ const Agency = require("../models/agenciesModel");
 const interviewScheduleModel = require("../models/interviewSchedule");
 const InterviewHistory = require("../models/interviewHistory");
 const DeveloperDeployment = require("../models/deploymentModel");
+const DeploymentHistory = require("../models/deploymentHistory");
 const User = require("../models/userModel");
 const mongoose = require("mongoose");
 const excelJS = require("exceljs");
@@ -26,8 +27,7 @@ nodeCron.schedule("0 0 10 * * *", async () => {
     if (
       element.date.getDate() - 1 === new Date().getDate() &&
       element.date.getMonth() === new Date().getMonth() &&
-      element.date.getFullYear() === new Date().getFullYear() &&
-      element.isInterviewScheduled === true
+      element.date.getFullYear() === new Date().getFullYear()
     ) {
       let emailIds = await User.aggregate([
         { $match: { role: "Admin" } },
@@ -559,24 +559,52 @@ const developer = {
     try {
       const { clientName, startDate, endDate, contractDuration } = req.body;
       const { developerId } = req.params;
-      // let result = await Agency.aggregate;
+      let result = await Developer.findOne({
+        _id: mongoose.Types.ObjectId(developerId),
+      }).populate({ path: "agencyId", select: { _id: 1, agencyName: 1 } });
+      console.log(result);
       let doc = new DeveloperDeployment({
         developer: developerId,
-        agency: agencyId,
+        agency: result.agencyId._id,
         clientName,
         startDate,
         endDate,
         contractDuration,
       });
       await doc.save();
-      return res.status(200).json({ success: "true" });
+      let obj = {
+        developerName: result.firstName + " " + result.lastName,
+        agencyName: result.agencyId.agencyName,
+        clientName: doc.clientName,
+        startDate: doc.startDate,
+        endDate: doc.endDate,
+        contractDuration: doc.contractDuration,
+      };
 
-      //      developer: { type: mongoose.Types.ObjectId, ref: "Developer" },
-      // agency: { type: mongoose.Types.ObjectId, ref: "Agency" },
-      // clientName: { type: String, required: true },
-      // startDate: { type: Date, required: true },
-      // endDate: { type: Date, required: true },
-      // contractDuration: { type: String, required: true },
+      let check = await DeploymentHistory.findOneAndUpdate(
+        { developerId },
+        { $push: { deploymentHistory: obj } }
+      );
+      if (check) {
+      } else {
+        let doc2 = new DeploymentHistory({
+          developerId: developerId,
+          deploymentHistory: obj,
+        });
+        await doc2.save();
+      }
+      return res.status(200).json({ success: "true" });
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
+  getDeploymentHistory: async (req, res) => {
+    try {
+      const { developerId } = req.params;
+      let result = await DeploymentHistory.findOne({
+        developerId: developerId,
+      });
+      return res.status(200).json({ success: "true", result });
     } catch (err) {
       return res.status(500).json({ msg: err.message });
     }

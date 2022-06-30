@@ -13,7 +13,8 @@ router.get('/getAllTech',auth,developerCtrl.getAllTech)
 router.get('/getSpecificDevelopers',auth,developerCtrl.getSpecificDevelopers);
 router.post("/setInterviewSchedule/:developerId",auth,developerCtrl.setInterviewSchedule);
 router.get("/getInterviewHistory/:id",auth,developerCtrl.getInterviewHistory);
-router.post("/developerDeployment", auth, developerCtrl.developerDeployment);
+router.post("/setDeveloperDeployment/:developerId", auth, developerCtrl.developerDeployment);
+router.get("/getDeploymentHistory/:developerId",auth,developerCtrl.getDeploymentHistory);
 
 
 module.exports = router
