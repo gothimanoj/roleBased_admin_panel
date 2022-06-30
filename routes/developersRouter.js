@@ -11,8 +11,9 @@ router.post('/setDeveloper',auth,upload.single([ {name: 'resume', maxCount: 1 },
 router.patch("/updateSingleDeveloper/:id",auth, developerCtrl.updateSingleDeveloper);
 router.get('/getAllTech',auth,developerCtrl.getAllTech)
 router.get('/getSpecificDevelopers',auth,developerCtrl.getSpecificDevelopers);
-router.post("/setInterviewSchedule/:value/:developerId",auth,developerCtrl.setInterviewSchedule);
+router.post("/setInterviewSchedule/:developerId",auth,developerCtrl.setInterviewSchedule);
 router.get("/getInterviewHistory/:id",auth,developerCtrl.getInterviewHistory);
+router.post("/developerDeployment", auth, developerCtrl.developerDeployment);
 
 
 module.exports = router

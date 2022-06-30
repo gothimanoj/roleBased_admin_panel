@@ -5,6 +5,7 @@ const Technology = require("../models/technologiesModel");
 const Agency = require("../models/agenciesModel");
 const interviewScheduleModel = require("../models/interviewSchedule");
 const InterviewHistory = require("../models/interviewHistory");
+const DeveloperDeployment = require("../models/deploymentModel");
 const User = require("../models/userModel");
 const mongoose = require("mongoose");
 const excelJS = require("exceljs");
@@ -486,19 +487,16 @@ const developer = {
   setInterviewSchedule: async (req, res) => {
     try {
       const { time, date, meetLink, clientId } = req.body;
-      const { developerId, value } = req.params;
+      const { developerId } = req.params;
       let agencyId = await Developer.aggregate([
         { $match: { _id: mongoose.Types.ObjectId(developerId) } },
         { $project: { _id: 0, agencyId: 1 } },
       ]);
-
-      let check = Number(value) ? true : false;
       let doc = new interviewScheduleModel({
         date,
         time,
         googleMeetLink: meetLink,
         developerId: developerId,
-        isInterviewScheduled: check,
         clientId: clientId,
         agencyId: agencyId[0].agencyId,
         status: "pending",
@@ -542,9 +540,7 @@ const developer = {
         });
         await doc2.save();
       }
-      if (check) {
-        sendEmail(adminEmail, "Interview Schedule", "testing3.hbs", obj);
-      }
+      sendEmail(adminEmail, "Interview Schedule", "testing3.hbs", obj);
       return res.status(200).json({ success: true });
     } catch (err) {
       return res.status(500).json({ msg: err.message });
@@ -555,6 +551,32 @@ const developer = {
       const { id } = req.params;
       let result = await InterviewHistory.findOne({ developerId: id });
       return res.status(200).json({ success: "true", result });
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
+  developerDeployment: async (req, res) => {
+    try {
+      const { clientName, startDate, endDate, contractDuration } = req.body;
+      const { developerId } = req.params;
+      // let result = await Agency.aggregate;
+      let doc = new DeveloperDeployment({
+        developer: developerId,
+        agency: agencyId,
+        clientName,
+        startDate,
+        endDate,
+        contractDuration,
+      });
+      await doc.save();
+      return res.status(200).json({ success: "true" });
+
+      //      developer: { type: mongoose.Types.ObjectId, ref: "Developer" },
+      // agency: { type: mongoose.Types.ObjectId, ref: "Agency" },
+      // clientName: { type: String, required: true },
+      // startDate: { type: Date, required: true },
+      // endDate: { type: Date, required: true },
+      // contractDuration: { type: String, required: true },
     } catch (err) {
       return res.status(500).json({ msg: err.message });
     }
