@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const status = ["pending", "done"];
+const status = ["pending", "done", "canceled"];
 const interviewSchema = new mongoose.Schema(
   {
     date: { type: Date, required: true },
