@@ -208,6 +208,7 @@ const developer = {
           agencyId: 1,
           isVerified: 1,
           isTested: 1,
+          isInterviewScheduled: 1,
           developerRoles: 1,
           expectedPrice: 1,
         },
@@ -627,7 +628,7 @@ const developer = {
     } catch (err) {
       return res.status(500).json({ msg: err.message });
     }
-  }
+  },
 };
 
 module.exports = developer;
