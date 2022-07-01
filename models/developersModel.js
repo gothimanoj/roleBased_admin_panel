@@ -86,7 +86,7 @@ const developerSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    interviewSchedule: { type: Boolean, default: false },
+    isInterviewScheduled: { type: Boolean, default: false },
     developerExpertise: [developerExpertiesSchema],
     developerTechnologies: [
       {

@@ -16,5 +16,4 @@ router.get("/getInterviewHistory/:id",auth,developerCtrl.getInterviewHistory);
 router.post("/setDeveloperDeployment/:developerId", auth, developerCtrl.developerDeployment);
 router.get("/getDeploymentHistory/:developerId",auth,developerCtrl.getDeploymentHistory);
 
-
 module.exports = router
