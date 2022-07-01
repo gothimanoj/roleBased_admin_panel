@@ -13,6 +13,7 @@ const mongoose = require("mongoose");
 const excelJS = require("exceljs");
 const sendEmail = require("../helpers/mailHelper");
 const nodeCron = require("node-cron");
+const sendNotification = require('../helpers/notificationSender');
 
 nodeCron.schedule("0 0 10 * * *", async () => {
   let schedules = await interviewScheduleModel
@@ -545,7 +546,8 @@ const developer = {
         await doc2.save();
       }
       sendEmail(adminEmail, "Interview Schedule", "testing3.hbs", obj);
-      return res.status(200).json({ success: true });
+      let msg = await sendNotification("congratulations your developer's interview has been scheduled");
+      return res.status(200).json({ success: true, notification:msg });
     } catch (err) {
       return res.status(500).json({ msg: err.message });
     }
@@ -569,7 +571,6 @@ const developer = {
       let clientInfo = await Client.findOne({
         _id: mongoose.Types.ObjectId(clientId),
       });
-      // console.log(clientInfo);
       let doc = new DeveloperDeployment({
         developer: developerId,
         agency: result.agencyId._id,
@@ -606,7 +607,8 @@ const developer = {
         });
         await doc2.save();
       }
-      return res.status(200).json({ success: "true" });
+      let msg = await sendNotification("congratulations your developer deployed to client");
+      return res.status(200).json({ success: "true", notification:msg });
     } catch (err) {
       return res.status(500).json({ msg: err.message });
     }
