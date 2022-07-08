@@ -6,50 +6,14 @@ const Agency = require("../models/agenciesModel");
 const Client = require("../models/clientsModel");
 const interviewScheduleModel = require("../models/interviewSchedule");
 const InterviewHistory = require("../models/interviewHistory");
+const NotificationModel = require("../models/notificationsModel");
 const DeveloperDeployment = require("../models/deploymentModel");
 const DeploymentHistory = require("../models/deploymentHistory");
 const User = require("../models/userModel");
 const mongoose = require("mongoose");
 const excelJS = require("exceljs");
 const sendEmail = require("../helpers/mailHelper");
-const nodeCron = require("node-cron");
 const sendNotification = require("../helpers/notificationSender");
-
-nodeCron.schedule("0 0 10 * * *", async () => {
-  let schedules = await interviewScheduleModel
-    .find({})
-    .populate({
-      path: "developerId",
-      select: { _id: 0, firstName: 1, lastName: 1 },
-    })
-    .populate({ path: "clientId", select: { _id: 0, companyName: 1 } })
-    .populate({ path: "agencyId", select: { _id: 0, agencyName: 1 } });
-  console.log(schedules);
-  for (let element of schedules) {
-    if (
-      element.date.getDate() - 1 === new Date().getDate() &&
-      element.date.getMonth() === new Date().getMonth() &&
-      element.date.getFullYear() === new Date().getFullYear()
-    ) {
-      let emailIds = await User.aggregate([
-        { $match: { role: "Admin" } },
-        { $project: { _id: 0, email: 1 } },
-      ]);
-      let adminEmail = emailIds.map((element) => element.email);
-      sendEmail(adminEmail, "Interview Schedule for tomorrow", "testing4.hbs", {
-        developerName:
-          element.developerId.firstName + " " + element.developerId.lastName,
-        onDate: element.date,
-        startTime: element.startTime,
-        endTime: element.endTime,
-        meetLink: element.googleMeetLink,
-        clientName: element.clientId.companyName,
-        agencyName: element.agencyId.agencyName,
-        status: element.status,
-      });
-    }
-  }
-});
 
 const developer = {
   getAllDeveloper: async (req, res) => {
@@ -271,9 +235,19 @@ const developer = {
         developerRoles: developer_role._id,
       });
       await devDoc.save();
-      return res
-        .status(200)
-        .json({ success: true, msg: "developer created successfully" });
+      let doc = new NotificationModel({
+        notificationTitle: "congratulations a new developer has registered",
+        notificationData: "A new developer has registered successfully",
+        userId: req.user._id,
+        userType: "Admin",
+        url: "",
+      });
+      await doc.save();
+      return res.status(200).json({
+        success: true,
+        msg: "developer created successfully",
+        notification: doc,
+      });
     } catch (error) {
       return res.status(500).json({ msg: error.message });
     }
@@ -547,10 +521,16 @@ const developer = {
         await doc2.save();
       }
       sendEmail(adminEmail, "Interview Schedule", "testing3.hbs", obj);
-      let msg = await sendNotification(
-        "congratulations your developer's interview has been scheduled"
-      );
-      return res.status(200).json({ success: true, notification: msg });
+      let doc3 = new NotificationModel({
+        notificationTitle:
+          "congratulations your developer's interview has been scheduled",
+        notificationData: "A developer's interview has been scheduled",
+        userId: req.user._id,
+        userType: "Admin",
+        url: "",
+      });
+      await doc3.save();
+      return res.status(200).json({ success: true, notification: doc3 });
     } catch (err) {
       return res.status(500).json({ msg: err.message });
     }
@@ -610,10 +590,16 @@ const developer = {
         });
         await doc2.save();
       }
-      let msg = await sendNotification(
-        "congratulations your developer deployed to client"
-      );
-      return res.status(200).json({ success: "true", notification: msg });
+      let doc3 = new NotificationModel({
+        notificationTitle:
+          "congratulations your developer deployed to a client",
+        notificationData: "A developer has been deployed to a client",
+        userId: req.user._id,
+        userType: "Admin",
+        url: "",
+      });
+      await doc3.save();
+      return res.status(200).json({ success: "true", notification: doc3 });
     } catch (err) {
       return res.status(500).json({ msg: err.message });
     }
