@@ -430,6 +430,8 @@ const agenciesCtrl = {
   getAgencyById: async (req, res) => {
     try {
       const { id } = req.params;
+      console.log(req.params)
+      console.log("kjgk")
       const Agencies = await Agency.findById(
         id,
         "-password -socialPlatformDetails -agencyRules"

@@ -7,6 +7,7 @@ router.get(
   auth,
   hireDeveloper.getAllRequirement
 );
+
 router.get("/singleRequirement/:id", auth, hireDeveloper.singleRequirement);
 
 router.get(
@@ -14,11 +15,13 @@ router.get(
   auth,
   hireDeveloper.singleRequirementById
 );
+
 router.patch(
   "/updateSingleRequirementById/:id",
   auth,
   hireDeveloper.updateSingleRequirementById
 );
+
 router.patch(
   "/notificationValidation/:value/:id",
   auth,

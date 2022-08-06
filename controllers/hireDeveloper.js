@@ -2,6 +2,7 @@ require("dotenv").config();
 const HireDeveloper = require("../models/hireDevelopersModel");
 const mongoose = require("mongoose");
 const sendEmail = require("../helpers/mailHelper");
+const developer = require("./developersCtrl");
 
 const hireDeveloper = {
   getAllRequirement: async (req, res) => {
@@ -51,9 +52,31 @@ const hireDeveloper = {
             as: "clientId",
           },
         },
+        {
+          $lookup: {
+            from: "developerroles",
+            let: { "developerroles": "$developerRolesRequired" },
+            
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $in: ["$_id", "$$developerroles"],
+                  },
+                },
+              },
+              {
+                $project: {
+                  roleName:1
+                },
+              },
+              
+            ],
+            as: "developerRolesRequired",
+          },
+        },
         { $sort: { createdAt: -1 } },
-      ]);
-
+      ])
       const allRequirement = await HireDeveloper.aggregatePaginate(
         agencies,
         options

@@ -615,6 +615,31 @@ const developer = {
       return res.status(500).json({ msg: err.message });
     }
   },
+  getSearchDeveloper: async (req, res) => {
+    try {
+      const { page, limit } = req.params;
+      const options = {
+        page: +page || 0,
+        limit: +limit || 20,
+        select: "-password",
+      };
+      console.log(req.params)
+      const developers = await Developer.find(
+        {
+          $or: [
+            { firstName: { $regex: req.params.key,$options:'i' }},
+            { lastName: { $regex: req.params.key,$options:'i' } },
+            // { userName: { $regex: req.params.key } },
+          ],
+        },
+     
+      ).populate("developerTechnologies")
+      // .populate("agencyId");
+      res.status(200).json({ success: true, developers });
+    } catch (error) {
+      return res.status(500).json({ msg: error.message });
+    }
+  }
 };
 
 module.exports = developer;

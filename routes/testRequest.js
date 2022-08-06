@@ -3,9 +3,7 @@ const auth =require('../middleware/access')
 const testRequestCtrl =require('../controllers/testRequestCtrl')
 
 
-router.get('/getRequest',testRequestCtrl.getAllRequest)
-
-
+router.get('/getRequest',testRequestCtrl.getAllRequest);
 router.post('/newRequest',testRequestCtrl.create)
 router.post('/createOrganization',testRequestCtrl.createOrganization)
 

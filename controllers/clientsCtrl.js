@@ -18,10 +18,11 @@ const clientsCtrl = {
       return res.status(500).json({ msg: error.message });
     }
   },
+  
   getProjectByClientId: async (req, res) => {
     try {
       const { id } = req.params;
-
+          console.log(id)
       const getAllProjectOfClient = await Project.aggregate([
         {
           $match: { clientId: mongoose.Types.ObjectId(id) },
@@ -39,6 +40,7 @@ const clientsCtrl = {
             projectDomainId: 1,
             projectStartDate: 1,
             projectExpectedStartingDays: 1,
+            createdAt: 1   // added
           },
         },
         {
@@ -130,12 +132,14 @@ const clientsCtrl = {
         limit: +limit || 20,
         select: "-password",
       };
+      console.log(req.params)
       const clients = await Client.find(
         {
           $or: [
             { companyName: { $regex: req.params.key } },
             { userEmail: { $regex: req.params.key } },
             { userEmail: { $regex: req.params.key } },
+            // { userName: { $regex: req.params.key } },
           ],
         },
         "-password"
