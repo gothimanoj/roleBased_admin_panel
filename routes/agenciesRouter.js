@@ -30,5 +30,6 @@ router.get("/SearchAgency/:key", auth, agenciesCtrl.getSearchAgencies);
 router.patch("/addUserInAgency/:id", checkAdmin, agenciesCtrl.addUserInAgency);
 
 router.get("/getAgency", auth, agenciesCtrl.getAllAgenciesName);
+router.get("/verifyAgency/:value/:id", auth, agenciesCtrl.verifyAgency);
 
 module.exports = router;

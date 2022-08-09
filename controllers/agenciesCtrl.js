@@ -11,19 +11,19 @@ const agenciesCtrl = {
       const { page, tab, limit } = req.params;
       const options = {
         page: +page || 1,
-        limit: +limit || 20,
+        limit: +limit || 20
       };
 
       if (tab == 1) {
         const agencies = Agency.aggregate([
           ...(req.user.role == "User"
             ? [
-                {
-                  $match: {
-                    assignedToUserId: mongoose.Types.ObjectId(req.user._id),
-                  },
+              {
+                $match: {
+                  assignedToUserId: mongoose.Types.ObjectId(req.user._id),
                 },
-              ]
+              },
+            ]
             : []),
           {
             $lookup: {
@@ -77,6 +77,29 @@ const agenciesCtrl = {
             },
           },
           {
+            $lookup: {
+              from: "developers",
+              let: { id: "$_id" },
+              pipeline: [
+                { $match: { $expr: { $eq: ["$agencyId", "$$id"] } } },
+                { $sort: { updatedAt: -1 } },
+                {
+                  $addFields: {
+                    updatedAt1: "$updatedAt",
+                  },
+                },
+                {
+                  $project: {
+                    _id: 0,
+                    updatedAt: 1
+                  }
+                }
+              ],
+              as: "developersCount",
+            },
+          },
+
+          {
             $match: {
               $or: [
                 {
@@ -118,6 +141,7 @@ const agenciesCtrl = {
               AgenciesDevelopers: 1,
               hiredevelopers: 1,
               userEmail: 1,
+              developersCount: 1
             },
           },
         ]);
@@ -129,12 +153,12 @@ const agenciesCtrl = {
         const agencies = Agency.aggregate([
           ...(req.user.role == "User"
             ? [
-                {
-                  $match: {
-                    assignedToUserId: mongoose.Types.ObjectId(req.user._id),
-                  },
+              {
+                $match: {
+                  assignedToUserId: mongoose.Types.ObjectId(req.user._id),
                 },
-              ]
+              },
+            ]
             : []),
           {
             $match: { isAgencyVerified: true },
@@ -162,7 +186,6 @@ const agenciesCtrl = {
         ]);
 
         const Agencies = await Agency.aggregatePaginate(agencies, options);
-        console.log("all VerifiedAgency");
         return res.status(200).json({ success: true, Agencies });
       }
 
@@ -170,12 +193,12 @@ const agenciesCtrl = {
         const agencies = Agency.aggregate([
           ...(req.user.role == "User"
             ? [
-                {
-                  $match: {
-                    assignedToUserId: mongoose.Types.ObjectId(req.user._id),
-                  },
+              {
+                $match: {
+                  assignedToUserId: mongoose.Types.ObjectId(req.user._id),
                 },
-              ]
+              },
+            ]
             : []),
           {
             $match: { isAgencyVerified: false },
@@ -205,7 +228,6 @@ const agenciesCtrl = {
           },
         ]);
         const Agencies = await Agency.aggregatePaginate(agencies, options);
-        console.log("all pendingAgency");
         return res.status(200).json({ success: true, Agencies });
       }
 
@@ -213,12 +235,12 @@ const agenciesCtrl = {
         const aggregateRejectedAgency = Agency.aggregate([
           ...(req.user.role == "User"
             ? [
-                {
-                  $match: {
-                    assignedToUserId: mongoose.Types.ObjectId(req.user._id),
-                  },
+              {
+                $match: {
+                  assignedToUserId: mongoose.Types.ObjectId(req.user._id),
                 },
-              ]
+              },
+            ]
             : []),
           {
             $match: { isAgencyVerified: false },
@@ -248,7 +270,6 @@ const agenciesCtrl = {
           aggregateRejectedAgency,
           options
         );
-        console.log("all rejectedAgency");
         return res.status(200).json({ success: true, Agencies });
       }
 
@@ -256,12 +277,12 @@ const agenciesCtrl = {
         const aggregateRejectedAgency = Agency.aggregate([
           ...(req.user.role == "User"
             ? [
-                {
-                  $match: {
-                    assignedToUserId: mongoose.Types.ObjectId(req.user._id),
-                  },
+              {
+                $match: {
+                  assignedToUserId: mongoose.Types.ObjectId(req.user._id),
                 },
-              ]
+              },
+            ]
             : []),
           {
             $lookup: {
@@ -321,34 +342,34 @@ const agenciesCtrl = {
         const aggregateRejectedAgency = Agency.aggregate([
           ...(req.user.role == "User"
             ? [
-                {
-                  $lookup: {
-                    from: "requestfrodevelopers",
-                    let: { id: "$_id", userId: req.user._id },
-                    pipeline: [
-                      {
-                        $match: {
-                          $and: [
-                            { $expr: { $eq: ["$$id", "$agencyId"] } },
-                            { $expr: { $eq: ["$$userId", "$userId"] } },
-                          ],
-                        },
+              {
+                $lookup: {
+                  from: "requestfrodevelopers",
+                  let: { id: "$_id", userId: req.user._id },
+                  pipeline: [
+                    {
+                      $match: {
+                        $and: [
+                          { $expr: { $eq: ["$$id", "$agencyId"] } },
+                          { $expr: { $eq: ["$$userId", "$userId"] } },
+                        ],
                       },
-                    ],
-                    as: "checkingUser",
-                  },
+                    },
+                  ],
+                  as: "checkingUser",
                 },
-                {
-                  $addFields: {
-                    userRequested: { $size: "$checkingUser" },
-                  },
+              },
+              {
+                $addFields: {
+                  userRequested: { $size: "$checkingUser" },
                 },
-                {
-                  $match: {
-                    userRequested: 0,
-                  },
+              },
+              {
+                $match: {
+                  userRequested: 0,
                 },
-              ]
+              },
+            ]
             : []),
           {
             $match: { assignedToUserId: { $exists: false } },
@@ -430,8 +451,6 @@ const agenciesCtrl = {
   getAgencyById: async (req, res) => {
     try {
       const { id } = req.params;
-      console.log(req.params)
-      console.log("kjgk")
       const Agencies = await Agency.findById(
         id,
         "-password -socialPlatformDetails -agencyRules"
@@ -525,7 +544,7 @@ const agenciesCtrl = {
 
   getAllRequestForDeveloper: async (req, res) => {
     try {
-      const { id } = req.params;
+      const { id } = req.params; 
       const RequestForDeveloper = await HireDeveloper.aggregate([
         {
           $unwind: {
@@ -586,12 +605,12 @@ const agenciesCtrl = {
       let Agencies = await Agency.aggregate([
         ...(req.user.role == "User"
           ? [
-              {
-                $match: {
-                  assignedToUserId: mongoose.Types.ObjectId(req.user._id),
-                },
+            {
+              $match: {
+                assignedToUserId: mongoose.Types.ObjectId(req.user._id),
               },
-            ]
+            },
+          ]
           : []),
         {
           $match: {
@@ -625,12 +644,11 @@ const agenciesCtrl = {
         },
       ]);
       return res.status(200).json({ success: true, Agencies });
-    } catch (error) {}
+    } catch (error) { }
   },
 
   addUserInAgency: async (req, res) => {
     try {
-      console.log("check");
       let findAgency = await Agency.findOne({ _id: req.params.id });
 
       const { userId } = req.body;
@@ -650,12 +668,12 @@ const agenciesCtrl = {
       const agencyName = await Agency.aggregate([
         ...(req.user.role == "User"
           ? [
-              {
-                $match: {
-                  assignedToUserId: mongoose.Types.ObjectId(req.user._id),
-                },
+            {
+              $match: {
+                assignedToUserId: mongoose.Types.ObjectId(req.user._id),
               },
-            ]
+            },
+          ]
           : []),
         {
           $project: {
@@ -668,6 +686,36 @@ const agenciesCtrl = {
       return res.status(500).json({ msg: error.message });
     }
   },
+
+  verifyAgency: async (req, res) => {
+
+    let { value, id } = req.params;
+
+    let check = parseInt(value);
+    if (check) {
+      await Agency.updateOne(
+        {
+          _id: mongoose.Types.ObjectId(id),
+        },
+        { $set: { isAgencyVerified: true } }
+      ).then((result) => {
+        return res.status(200).json({ success: true, result })
+      }).catch((err) => {
+        return res.status(200).json(err)
+      })
+    } else {
+      await Agency.updateOne(
+        { _id: mongoose.Types.ObjectId(id) },
+        { $set: { isAgencyVerified: false } }
+      ).then((result) => {
+        return res.status(200).json({ success: true, result })
+      }).catch((err) => {
+        return res.status(200).json(err)
+
+      })
+    }
+
+  }
 };
 
 module.exports = agenciesCtrl;

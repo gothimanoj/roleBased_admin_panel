@@ -37,9 +37,8 @@ const hireDeveloperSchema = new mongoose.Schema(
     },
     developerRolesRequired: [
       {
-        type: String,
+        type: mongoose.Types.ObjectId,
         ref: "developerroles",
-
       },
     ],
     numberOfResourcesRequired: {

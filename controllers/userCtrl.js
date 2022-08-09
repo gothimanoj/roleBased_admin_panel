@@ -55,7 +55,6 @@ const userCtrl = {
     try {
       let { email, password } = req.body;
       let user = null;
-      console.log(email)
       if (email) {
         user = await Users.findOne({ email });
       }

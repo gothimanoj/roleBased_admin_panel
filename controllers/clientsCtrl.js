@@ -22,7 +22,6 @@ const clientsCtrl = {
   getProjectByClientId: async (req, res) => {
     try {
       const { id } = req.params;
-          console.log(id)
       const getAllProjectOfClient = await Project.aggregate([
         {
           $match: { clientId: mongoose.Types.ObjectId(id) },
@@ -132,7 +131,6 @@ const clientsCtrl = {
         limit: +limit || 20,
         select: "-password",
       };
-      console.log(req.params)
       const clients = await Client.find(
         {
           $or: [
