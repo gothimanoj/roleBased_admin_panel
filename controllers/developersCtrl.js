@@ -643,23 +643,31 @@ const developer = {
   },
 
   getTodaysInterview: async (req, res) => {
-    interviewScheduleModel.find().then((result) => {
+
+    await interviewScheduleModel.find().then((result) => {
       var today = new Date();
-      let todaysDate = String(today.getDate()) + "/" + String(today.getMonth() + 1) + "/" + today.getFullYear()
-      let newResult = []
+      let todaysDate = String(today.getDate()) + "/" + String(today.getMonth() + 1) + "/" + today.getFullYear();
+      let newResult = [];
+      var flag=0;
       for (i = 0; i < result.length; i++) {
-        date = new Date(result[i].date).toLocaleDateString()
-        console.log(date)
+        date = new Date(result[i].date).toLocaleDateString();
         if (date == todaysDate) {
-          newResult.push(result[i])
+          newResult.push(result[i]);
+        }
+        if (i == result.length - 1){
+          flag = 1;
         }
       }
-      return res.status(200).json(newResult)
+      if (flag == 1)
+        return res.status(200).json(newResult);
+      else
+        return res.status(200).json(newResult);
+
+
     }).catch((err) => {
       return res.status(500).json(err);
 
     })
-
 
   }
 };
