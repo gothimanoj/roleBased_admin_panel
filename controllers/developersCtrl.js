@@ -175,7 +175,7 @@ const developer = {
           isInterviewScheduled: 1,
           developerRoles: 1,
           expectedPrice: 1,
-          createdAt:1
+          createdAt: 1
         },
       });
 
@@ -628,19 +628,44 @@ const developer = {
       const developers = await Developer.find(
         {
           $or: [
-            { firstName: { $regex: req.params.key,$options:'i' }},
-            { lastName: { $regex: req.params.key,$options:'i' } },
+            { firstName: { $regex: req.params.key, $options: 'i' } },
+            { lastName: { $regex: req.params.key, $options: 'i' } },
             // { userName: { $regex: req.params.key } },
           ],
         },
-     
+
       ).populate("developerTechnologies")
       // .populate("agencyId");
       res.status(200).json({ success: true, developers });
     } catch (error) {
       return res.status(500).json({ msg: error.message });
     }
+  },
+
+  getTodaysInterview: async (req, res) => {
+    interviewScheduleModel.find().then((result) => {
+      var today = new Date();
+      let todaysDate = String(today.getDate()) + "/" + String(today.getMonth() + 1) + "/" + today.getFullYear()
+      let newResult = []
+      for (i = 0; i < result.length; i++) {
+        date = new Date(result[i].date).toLocaleDateString()
+        console.log(date)
+        if (date == todaysDate) {
+          newResult.push(result[i])
+        }
+      }
+      return res.status(200).json(newResult)
+    }).catch((err) => {
+      return res.status(500).json(err);
+
+    })
+
+
   }
 };
+
+
+
+
 
 module.exports = developer;

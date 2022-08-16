@@ -3,7 +3,6 @@ const developerCtrl = require('../controllers/developersCtrl')
 const upload =require('../middleware/multer')
 const auth =require('../middleware/access')
 
-
 router.get('/getAll/:page/:limit',auth,developerCtrl.getAllDeveloper);
 router.get('/getDeveloper',auth,developerCtrl.getAllDeveloperName);
 router.get('/getDeveloperRole',auth,developerCtrl.getAllRole);
@@ -16,5 +15,6 @@ router.get("/getInterviewHistory/:id",auth,developerCtrl.getInterviewHistory);
 router.post("/setDeveloperDeployment/:developerId", auth, developerCtrl.developerDeployment);
 router.get("/getDeploymentHistory/:developerId",auth,developerCtrl.getDeploymentHistory);
 router.get("/SearchDeveloper/:key", auth, developerCtrl.getSearchDeveloper);
+router.get("/todaysInterview",auth,developerCtrl.getTodaysInterview);
 
-module.exports = router
+module.exports = router ;

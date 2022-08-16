@@ -690,7 +690,6 @@ const agenciesCtrl = {
   verifyAgency: async (req, res) => {
 
     let { value, id } = req.params;
-
     let check = parseInt(value);
     if (check) {
       await Agency.updateOne(
@@ -701,7 +700,7 @@ const agenciesCtrl = {
       ).then((result) => {
         return res.status(200).json({ success: true, result })
       }).catch((err) => {
-        return res.status(200).json(err)
+        return res.status(500).json(err)
       })
     } else {
       await Agency.updateOne(
@@ -710,7 +709,7 @@ const agenciesCtrl = {
       ).then((result) => {
         return res.status(200).json({ success: true, result })
       }).catch((err) => {
-        return res.status(200).json(err)
+        return res.status(500).json(err)
 
       })
     }
