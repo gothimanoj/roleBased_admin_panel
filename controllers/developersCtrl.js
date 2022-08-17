@@ -635,45 +635,26 @@ const developer = {
         },
 
       ).populate("developerTechnologies")
-      // .populate("agencyId");
+        .populate("agencyId");
       res.status(200).json({ success: true, developers });
     } catch (error) {
       return res.status(500).json({ msg: error.message });
     }
   },
-
   getTodaysInterview: async (req, res) => {
 
-    await interviewScheduleModel.find().then((result) => {
-      var today = new Date();
-      let todaysDate = String(today.getDate()) + "/" + String(today.getMonth() + 1) + "/" + today.getFullYear();
-      let newResult = [];
-      var flag=0;
-      for (i = 0; i < result.length; i++) {
-        date = new Date(result[i].date).toLocaleDateString();
-        if (date == todaysDate) {
-          newResult.push(result[i]);
-        }
-        if (i == result.length - 1){
-          flag = 1;
-        }
-      }
-      if (flag == 1)
-        return res.status(200).json(newResult);
-      else
-        return res.status(200).json(newResult);
-
-
+    var today = new Date();
+    let date = new Date(Date.UTC(today.getFullYear(), (today.getMonth()), today.getDate(), 0, 0, 0));
+    let date2 = new Date(Date.UTC(today.getFullYear(), (today.getMonth()), today.getDate() + 1, 0, 0, 0));
+    await interviewScheduleModel.find({ date: { $gte: date, $lt: date2 } }).then((result) => {
+      return res.status(200).json({ success: true, todaysInterview: result })
     }).catch((err) => {
-      return res.status(500).json(err);
+      return res.status(500).json({ success: false, error: err })
 
-    })
+    });
+
 
   }
 };
-
-
-
-
 
 module.exports = developer;

@@ -38,7 +38,7 @@ const hireDeveloperSchema = new mongoose.Schema(
     developerRolesRequired: [
       {
         type: mongoose.Types.ObjectId,
-        ref: "developerroles",
+        ref: "DeveloperRole",
       },
     ],
     numberOfResourcesRequired: {
@@ -88,5 +88,4 @@ const hireDeveloperSchema = new mongoose.Schema(
 
 hireDeveloperSchema.plugin(mongoosePaginate);
 hireDeveloperSchema.plugin(mongooseAggregatePaginate);
-
 module.exports = mongoose.model("HireDeveloper", hireDeveloperSchema);

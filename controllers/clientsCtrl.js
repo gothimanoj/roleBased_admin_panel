@@ -1,8 +1,10 @@
 require("dotenv").config();
-const Client = require("../models/clientsModel");
-const Project = require("../models/projectsModel");
-const HireDevelopers = require("../models/hireDevelopersModel");
 const mongoose = require("mongoose");
+
+const Client = require("../models/clientsModel");
+const HireDevelopers = require("../models/hireDevelopersModel");
+
+const Project = require("../models/projectsModel");
 const clientsCtrl = {
   getAllClients: async (req, res) => {
     try {
@@ -105,7 +107,9 @@ const clientsCtrl = {
       const { id } = req.params;
       const RequestForDeveloper = await HireDevelopers.find({
         clientId: mongoose.Types.ObjectId(id),
-      }).populate("developerTechnologiesRequired", "-_id technologyName");
+      }).populate("developerTechnologiesRequired", "-_id technologyName")
+      .populate("developerRolesRequired","-_id roleName")
+
       return res.status(200).json({ success: true, RequestForDeveloper });
     } catch (error) {
       return res.status(500).json({ msg: error.message });

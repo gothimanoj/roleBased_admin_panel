@@ -56,7 +56,7 @@ const hireDeveloper = {
           $lookup: {
             from: "developerroles",
             let: { developerroles: "$developerRolesRequired" },
-            
+
             pipeline: [
               {
                 $match: {
@@ -67,10 +67,10 @@ const hireDeveloper = {
               },
               {
                 $project: {
-                  roleName:1
+                  roleName: 1
                 },
               },
-              
+
             ],
             as: "developerRolesRequired",
           },
@@ -161,7 +161,7 @@ const hireDeveloper = {
             developerTechnologiesRequired: 1,
             contractPeriod: 1,
             expectedStartTime: 1,
-            createdAt:1
+            createdAt: 1
           },
         },
       ]);
@@ -211,7 +211,7 @@ const hireDeveloper = {
             developerTechnologiesRequired: 1,
             contractPeriod: 1,
             expectedStartDate: 1,
-            createdAt:1
+            createdAt: 1
           },
         },
       ]);
@@ -266,7 +266,7 @@ const hireDeveloper = {
         contractPeriod || singleRequirementById.contractPeriod;
       singleRequirementById.clientId = clientId || singleRequirementById.clientId;
       await singleRequirementById.save();
-      return res.json({ success: true, msg:"successfully updated" });
+      return res.json({ success: true, msg: "successfully updated" });
     } catch (error) {
       return res.status(500).json({ msg: error.message });
     }
@@ -276,7 +276,7 @@ const hireDeveloper = {
     try {
       const { value, id } = req.params;
       let check = parseInt(value);
-      if (check) { 
+      if (check) {
         await HireDeveloper.updateOne(
           {
             _id: mongoose.Types.ObjectId(id),
