@@ -328,6 +328,6 @@ const hireDeveloper = {
       return res.status(500).json({ msg: error.message });
     }
   },
-};
+}
 
 module.exports = hireDeveloper;

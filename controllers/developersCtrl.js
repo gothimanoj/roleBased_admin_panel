@@ -24,6 +24,7 @@ const developer = {
         limit: +limit || 20,
       };
 
+
       const aggregation = [];
       if (req.query.getByTech) {
         const allId = [];
@@ -132,6 +133,25 @@ const developer = {
         },
         {
           $lookup: {
+            from: "developerroles",
+            let: { id: "$developerRoles" },
+            pipeline: [
+              {
+                $match: {
+                  $expr: { $eq: ["$_id", "$$id"] },
+                },
+              },
+              {
+                $project: {
+                  roleName: 1,
+                },
+              },
+            ],
+            as: "developerRoles",
+          },
+        },
+        {
+          $lookup: {
             from: "technologies",
             let: { technologiesId: "$developerTechnologies" },
             pipeline: [
@@ -152,6 +172,7 @@ const developer = {
             as: "developerTechnologies",
           },
         },
+
         {
           $unwind: "$agencyId",
         }
@@ -646,7 +667,7 @@ const developer = {
     var today = new Date();
     let date = new Date(Date.UTC(today.getFullYear(), (today.getMonth()), today.getDate(), 0, 0, 0));
     let date2 = new Date(Date.UTC(today.getFullYear(), (today.getMonth()), today.getDate() + 1, 0, 0, 0));
-    await interviewScheduleModel.find({ date: { $gte: date, $lt: date2 } }).then((result) => {
+    await interviewScheduleModel.find({ date: { $gte: date, $lt: date2 } }).populate("developerId", "-_id firstName lastName").populate("agencyId"," -_id agencyName ownerName").then((result) => {
       return res.status(200).json({ success: true, todaysInterview: result })
     }).catch((err) => {
       return res.status(500).json({ success: false, error: err })
@@ -654,6 +675,25 @@ const developer = {
     });
 
 
+  },
+  setInterviewStatus: async (req, res) => {
+
+    const { id, status } = req.params;
+
+    if (status) {
+      await interviewScheduleModel.updateOne(
+        {
+          _id: mongoose.Types.ObjectId(id),
+        },
+        { $set: { status: status } }
+      ).then((result) => {
+        return res.status(200).json({ success: true, msg: "status changed" })
+      }).catch((err) => {
+        return res.status(500).json(err);
+      })
+    } else {
+      return res.status(200).json({ success: true, msg: "nothing changed" })
+    }
   }
 };
 

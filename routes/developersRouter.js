@@ -16,5 +16,6 @@ router.post("/setDeveloperDeployment/:developerId", auth, developerCtrl.develope
 router.get("/getDeploymentHistory/:developerId",auth,developerCtrl.getDeploymentHistory);
 router.get("/SearchDeveloper/:key", auth, developerCtrl.getSearchDeveloper);
 router.get("/todaysInterview",auth,developerCtrl.getTodaysInterview);
+router.patch("/setInterviewStatus/:id/:status",auth,developerCtrl.setInterviewStatus);
 
 module.exports = router ;
