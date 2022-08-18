@@ -14,7 +14,6 @@ const mongoose = require("mongoose");
 const excelJS = require("exceljs");
 const sendEmail = require("../helpers/mailHelper");
 const sendNotification = require("../helpers/notificationSender");
-
 const developer = {
   getAllDeveloper: async (req, res) => {
     try {
@@ -477,10 +476,19 @@ const developer = {
         "Content-Disposition",
         "attachment; filename=" + `${file_name}.xlsx`
       );
+      // console.log(worksheet)
       return workbook.xlsx.write(res).then(function () {
         res.status(200).end();
       });
+      // let tempFilePath = __dirname + "test.xlsx"
+      // workbook.xlsx.writeFile(tempFilePath).then(function() {
+      //     console.log('file is written');
+      //     res.sendFile(tempFilePath, function(err){
+      //         console.log('---------- error downloading file: ' + err);
+      //     });
+      // });
     } catch (err) {
+      console.log(err)
       return res.status(500).json({ msg: err.message });
     }
   },
@@ -508,7 +516,7 @@ const developer = {
         .sort({ createdAt: -1 })
         .populate({
           path: "developerId",
-          select: { _id: 0, firstName: 1, lastName: 1 },
+          select: { _id: 1, firstName: 1, lastName: 1 },
         })
         .populate({ path: "clientId", select: { _id: 0, companyName: 1 } })
         .populate({ path: "agencyId", select: { _id: 0, agencyName: 1 } });
@@ -518,6 +526,7 @@ const developer = {
       ]);
       let adminEmail = emailIds.map((element) => element.email);
       let obj = {
+        _id: result[0]._id,
         developerName:
           result[0].developerId.firstName +
           " " +
@@ -656,7 +665,8 @@ const developer = {
         },
 
       ).populate("developerTechnologies")
-        .populate("agencyId");
+        .populate("agencyId")
+        .populate("developerRoles","-_id roleName")
       res.status(200).json({ success: true, developers });
     } catch (error) {
       return res.status(500).json({ msg: error.message });
@@ -667,7 +677,7 @@ const developer = {
     var today = new Date();
     let date = new Date(Date.UTC(today.getFullYear(), (today.getMonth()), today.getDate(), 0, 0, 0));
     let date2 = new Date(Date.UTC(today.getFullYear(), (today.getMonth()), today.getDate() + 1, 0, 0, 0));
-    await interviewScheduleModel.find({ date: { $gte: date, $lt: date2 } }).populate("developerId", "-_id firstName lastName").populate("agencyId"," -_id agencyName ownerName").then((result) => {
+    await interviewScheduleModel.find({ date: { $gte: date, $lt: date2 } }).populate("developerId", "-_id firstName lastName").populate("agencyId", " -_id agencyName ownerName").then((result) => {
       return res.status(200).json({ success: true, todaysInterview: result })
     }).catch((err) => {
       return res.status(500).json({ success: false, error: err })
