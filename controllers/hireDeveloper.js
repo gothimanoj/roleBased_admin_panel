@@ -90,7 +90,8 @@ const hireDeveloper = {
   singleRequirement: async (req, res) => {
     try {
       const { id } = req.params;
-
+           console.log(id)
+           
       const singleRequirement = await HireDeveloper.aggregate([
         {
           $match: {
@@ -110,12 +111,39 @@ const hireDeveloper = {
             as: "agency",
           },
         },
+        
         {
           $lookup: {
             from: "developers",
             localField: "developersShared.developerId",
             foreignField: "_id",
             as: "developer",
+          },
+        },
+        {
+          $lookup: {
+            from: "clients",
+            let: { id: "$clientId" },
+            pipeline: [
+              {
+                $match: {
+                  $expr: { $eq: ["$_id", "$$id"] },
+                },
+              },
+              {
+                $project: {
+                  companyName: 1,
+                  userDesignation:1,
+                  firstName:1,
+                  lastName:1,
+                  userName:1,
+                  countryCode:1,
+                  userPhone:1,
+
+                },
+              },
+            ],
+            as: "clientDetails",
           },
         },
         {
@@ -136,6 +164,24 @@ const hireDeveloper = {
             ],
             as: "developerTechnologiesRequired",
           },
+        },{
+          $lookup: {
+            from: "developerroles",
+            let: { id: "$developerRolesRequired" },
+            pipeline: [
+              {
+                $match: {
+                  $expr: { $in: ["$_id", "$$id"] },
+                },
+              },
+              {
+                $project: {
+                  roleName: 1,
+                },
+              },
+            ],
+            as: "developerRolesRequired",
+          },
         },
         {
           $unwind: {
@@ -154,6 +200,7 @@ const hireDeveloper = {
             developersShared: 1,
             requirementName: 1,
             jobDescription: 1,
+            clientDetails:1,
             developerRolesRequired: 1,
             numberOfResourcesRequired: 1,
             developerExperienceRequired: 1,

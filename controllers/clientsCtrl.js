@@ -121,7 +121,7 @@ const clientsCtrl = {
       // const Details = await HireDevelopers.findById(id)
       //   .populate("agenciesMatched.agencyId", "agencyName")
       //   .populate("developerTechnologiesRequired", "-_id technologyName");
-      const Details = await HireDevelopers.findOne({ _id: id });
+      const Details = await HireDevelopers.findOne({ _id: id }).populate("developerRolesRequired", "-_id roleName").populate("developerTechnologiesRequired","-_id technologyName")
       return res.status(200).json({ success: true, Details });
     } catch (error) {
       return res.status(500).json({ msg: error.message });

@@ -14,6 +14,7 @@ const mongoose = require("mongoose");
 const excelJS = require("exceljs");
 const sendEmail = require("../helpers/mailHelper");
 const sendNotification = require("../helpers/notificationSender");
+const interviewHistory = require("../models/interviewHistory");
 const developer = {
   getAllDeveloper: async (req, res) => {
     try {
@@ -488,7 +489,6 @@ const developer = {
       //     });
       // });
     } catch (err) {
-      console.log(err)
       return res.status(500).json({ msg: err.message });
     }
   },
@@ -654,7 +654,6 @@ const developer = {
         limit: +limit || 20,
         select: "-password",
       };
-      console.log(req.params)
       const developers = await Developer.find(
         {
           $or: [
@@ -666,7 +665,7 @@ const developer = {
 
       ).populate("developerTechnologies")
         .populate("agencyId")
-        .populate("developerRoles","-_id roleName")
+        .populate("developerRoles", "-_id roleName")
       res.status(200).json({ success: true, developers });
     } catch (error) {
       return res.status(500).json({ msg: error.message });
@@ -688,7 +687,7 @@ const developer = {
   },
   setInterviewStatus: async (req, res) => {
 
-    const { id, status } = req.params;
+    const { id, historyId, status } = req.params;
 
     if (status) {
       await interviewScheduleModel.updateOne(
@@ -696,15 +695,26 @@ const developer = {
           _id: mongoose.Types.ObjectId(id),
         },
         { $set: { status: status } }
-      ).then((result) => {
-        return res.status(200).json({ success: true, msg: "status changed" })
+      ).then(async (result) => {
+        if(result.nModified>0){
+        await interviewHistory.findOneAndUpdate({_id: historyId, history: {$elemMatch: {_id: mongoose.Types.ObjectId(id)}}},
+          {$set: {'history.$.status': status}}).then((re) => {
+                return res.status(200).json({ success: true, msg: "status changed", result: re});
+              }).catch((err)=>{
+        return res.status(500).json({msg:"something went wrong 2",error:err});
+
+              })
+            }
       }).catch((err) => {
-        return res.status(500).json(err);
+        return res.status(500).json({msg:"something went wrong 1",error:err});
       })
     } else {
       return res.status(200).json({ success: true, msg: "nothing changed" })
     }
   }
+  
 };
+
+
 
 module.exports = developer;
