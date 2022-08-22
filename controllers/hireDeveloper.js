@@ -46,6 +46,11 @@ const hireDeveloper = {
                   firstName: 1,
                   lastName: 1,
                   userName: 1,
+                  companyName: 1,
+                  userEmail:1,
+                  countryCode:1,
+                  userPhone:1,
+                  userDesignation:1
                 },
               },
             ],
