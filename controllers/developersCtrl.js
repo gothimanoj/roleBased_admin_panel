@@ -15,6 +15,8 @@ const excelJS = require("exceljs");
 const sendEmail = require("../helpers/mailHelper");
 const sendNotification = require("../helpers/notificationSender");
 const interviewHistory = require("../models/interviewHistory");
+const hireDevelopersModel = require("../models/hireDevelopersModel");
+const { json } = require("body-parser");
 const developer = {
   getAllDeveloper: async (req, res) => {
     try {
@@ -477,7 +479,7 @@ const developer = {
         "Content-Disposition",
         "attachment; filename=" + `${file_name}.xlsx`
       );
-      // console.log(worksheet)
+      console.log(worksheet)
       return workbook.xlsx.write(res).then(function () {
         res.status(200).end();
       });
@@ -676,8 +678,22 @@ const developer = {
     var today = new Date();
     let date = new Date(Date.UTC(today.getFullYear(), (today.getMonth()), today.getDate(), 0, 0, 0));
     let date2 = new Date(Date.UTC(today.getFullYear(), (today.getMonth()), today.getDate() + 1, 0, 0, 0));
-    await interviewScheduleModel.find({ date: { $gte: date, $lt: date2 } }).populate("developerId", "-_id firstName lastName").populate("agencyId", " -_id agencyName ownerName").then((result) => {
-      return res.status(200).json({ success: true, todaysInterview: result })
+    await interviewScheduleModel.find({ date: { $gte: date, $lt: date2 } }).populate("developerId", " firstName lastName").populate("agencyId", " -_id agencyName ownerName").then(async (result) => {
+
+
+      if (result.length > 0) {
+
+        await InterviewHistory.findOne({ developerId: result[0].developerId._id })
+          .then((history) => {
+            return res.status(200).json({ success: true, todayInterview: result, historyId: history._id });
+
+          }).catch((err) => {
+            return res.status(500).json({ success: false, error: err });
+
+          })
+
+
+      }
     }).catch((err) => {
       return res.status(500).json({ success: false, error: err })
 
@@ -696,23 +712,26 @@ const developer = {
         },
         { $set: { status: status } }
       ).then(async (result) => {
-        if(result.nModified>0){
-        await interviewHistory.findOneAndUpdate({_id: historyId, history: {$elemMatch: {_id: mongoose.Types.ObjectId(id)}}},
-          {$set: {'history.$.status': status}}).then((re) => {
-                return res.status(200).json({ success: true, msg: "status changed", result: re});
-              }).catch((err)=>{
-        return res.status(500).json({msg:"something went wrong 2",error:err});
+        if (result.nModified > 0) {
+          await interviewHistory.findOneAndUpdate({ _id: historyId, history: { $elemMatch: { _id: mongoose.Types.ObjectId(id) } } },
+            { $set: { 'history.$.status': status } }).then((re) => {
+              return res.status(200).json({ success: true, msg: "status changed", result: re });
+            }).catch((err) => {
+              return res.status(500).json({ msg: "something went wrong 2", error: err });
 
-              })
-            }
+            })
+        } else {
+          return res.status(200).json({ success: true, msg: "status changed", result: re });
+
+        }
       }).catch((err) => {
-        return res.status(500).json({msg:"something went wrong 1",error:err});
+        return res.status(500).json({ msg: "something went wrong 1", error: err });
       })
     } else {
       return res.status(200).json({ success: true, msg: "nothing changed" })
     }
   }
-  
+
 };
 
 
