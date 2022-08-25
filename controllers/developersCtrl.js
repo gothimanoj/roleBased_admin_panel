@@ -674,15 +674,14 @@ const developer = {
     }
   },
   getTodaysInterview: async (req, res) => {
-
+      console.log("osidjiivdvdeon")
     var today = new Date();
     let date = new Date(Date.UTC(today.getFullYear(), (today.getMonth()), today.getDate(), 0, 0, 0));
     let date2 = new Date(Date.UTC(today.getFullYear(), (today.getMonth()), today.getDate() + 1, 0, 0, 0));
-    await interviewScheduleModel.find({ date: { $gte: date, $lt: date2 } }).populate("developerId", " firstName lastName").populate("agencyId", " -_id agencyName ownerName").then(async (result) => {
-
-
+    await interviewScheduleModel.find({ date: { $gte: date, $lt: date2 } }).populate("developerId", " firstName lastName").populate("agencyId", " -_id agencyName ownerName").populate("clientId").then(async (result) => {
+      console.log(result)
       if (result.length > 0) {
-
+        console.log("if")
         await InterviewHistory.findOne({ developerId: result[0].developerId._id })
           .then((history) => {
             return res.status(200).json({ success: true, todayInterview: result, historyId: history._id });
@@ -693,6 +692,11 @@ const developer = {
           })
 
 
+      }else{
+        return res.status(200).json({ msg : "there is no interview Today", result})
+
+         
+
       }
     }).catch((err) => {
       return res.status(500).json({ success: false, error: err })
@@ -702,7 +706,7 @@ const developer = {
 
   },
   setInterviewStatus: async (req, res) => {
-
+ console.log(req.body)
     const { id, historyId, status } = req.params;
 
     if (status) {

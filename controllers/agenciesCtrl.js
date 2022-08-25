@@ -601,6 +601,7 @@ const agenciesCtrl = {
   },
 
   getSearchAgencies: async (req, res) => {
+    console.log(req.params.key)
     try {
       let Agencies = await Agency.aggregate([
         ...(req.user.role == "User"
@@ -614,7 +615,11 @@ const agenciesCtrl = {
           : []),
         {
           $match: {
-            agencyName: { $regex: req.params.key, $options: "i" },
+            $or: [
+              { agencyName: { $regex: req.params.key,$options: 'i' } },
+              { ownerName: { $regex: req.params.key,$options: 'i' } },
+              { agencyEmail: { $regex: req.params.key ,$options: 'i'} },
+            ],
           },
         },
         {

@@ -138,10 +138,9 @@ const clientsCtrl = {
       const clients = await Client.find(
         {
           $or: [
-            { companyName: { $regex: req.params.key } },
+            { companyName: { $regex: req.params.key,$options: 'i' } },
             { userEmail: { $regex: req.params.key } },
-            { userEmail: { $regex: req.params.key } },
-            // { userName: { $regex: req.params.key } },
+            { userName: { $regex: req.params.key } },
           ],
         },
         "-password"
