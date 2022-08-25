@@ -5,8 +5,10 @@ const mongoose = require("mongoose");
 const HireDeveloper = require("../models/hireDevelopersModel");
 const Developer = require("../models/developersModel");
 const sendEmail = require("../helpers/mailHelper");
+const { countDocuments } = require("../models/agenciesModel");
 const agenciesCtrl = {
   getAllAgencies: async (req, res) => {
+    console.log(req.user);
     try {
       const { page, tab, limit } = req.params;
       const options = {
@@ -150,43 +152,52 @@ const agenciesCtrl = {
       }
 
       if (tab == 2) {
-        const agencies = Agency.aggregate([
-          ...(req.user.role == "User"
-            ? [
-              {
-                $match: {
-                  assignedToUserId: mongoose.Types.ObjectId(req.user._id),
+        console.log(req.user);
+        try {
+          const agencies = Agency.aggregate([
+            ...(req.user.role == "User"
+              ? [
+                {
+                  $match: {
+                    assignedToUserId: mongoose.Types.ObjectId(req.user._id),
+                  },
                 },
-              },
-            ]
-            : []),
-          {
-            $match: { isAgencyVerified: true },
-          },
-          {
-            $match: { verificationMessage: "Agency verification successful." },
-          },
-          {
-            $project: {
-              _id: 1,
-              isAgencyVerified: 1,
-              isUserEmailVerified: 1,
-              verificationMessage: 1,
-              agencyName: 1,
-              ownerName: 1,
-              agencyEmail: 1,
-              agencyPhone: 1,
-              agencyLogo: 1,
-              incorporationDate: 1,
-              agencyTeamSize: 1,
-              createdAt: 1,
-              userEmail: 1,
+              ]
+              : []),
+            {
+              $match: { isAgencyVerified: true },
             },
-          },
-        ]);
+            {
+              $match: { verificationMessage: "Agency verification successful" },
+            },
+            {
+              $project: {
+                _id: 1,
+                isAgencyVerified: 1,
+                isUserEmailVerified: 1,
+                verificationMessage: 1,
+                agencyName: 1,
+                ownerName: 1,
+                agencyEmail: 1,
+                agencyPhone: 1,
+                agencyLogo: 1,
+                incorporationDate: 1,
+                agencyTeamSize: 1,
+                createdAt: 1,
+                userEmail: 1,
+              },
+            },
+          ]);
 
-        const Agencies = await Agency.aggregatePaginate(agencies, options);
-        return res.status(200).json({ success: true, Agencies });
+
+
+          const Agencies = await Agency.aggregatePaginate(agencies, options);
+          console.log(Agencies)
+          console.log(options)
+          return res.status(200).json({ success: true, Agencies });
+        } catch (e) {
+          console.log(e)
+        }
       }
 
       if (tab == 3) {
@@ -544,7 +555,7 @@ const agenciesCtrl = {
 
   getAllRequestForDeveloper: async (req, res) => {
     try {
-      const { id } = req.params; 
+      const { id } = req.params;
       const RequestForDeveloper = await HireDeveloper.aggregate([
         {
           $unwind: {
@@ -616,9 +627,9 @@ const agenciesCtrl = {
         {
           $match: {
             $or: [
-              { agencyName: { $regex: req.params.key,$options: 'i' } },
-              { ownerName: { $regex: req.params.key,$options: 'i' } },
-              { agencyEmail: { $regex: req.params.key ,$options: 'i'} },
+              { agencyName: { $regex: req.params.key, $options: 'i' } },
+              { ownerName: { $regex: req.params.key, $options: 'i' } },
+              { agencyEmail: { $regex: req.params.key, $options: 'i' } },
             ],
           },
         },
