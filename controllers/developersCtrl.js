@@ -342,7 +342,9 @@ const developer = {
 
   getSpecificDevelopers: async (req, res) => {
     try {
+      console.log(req.query)
       const { none, verified, available, unavailable } = req.query;
+
       let arr = [];
       let file_name;
       if (verified) {
@@ -416,80 +418,9 @@ const developer = {
           .join(", ");
         data.push(obj);
       }
-      const workbook = new excelJS.Workbook(); // Create a new workbook
-      const worksheet = workbook.addWorksheet("My Users"); // New Worksheet
-      // Column for data in excel. key must match data key
-      worksheet.columns = [
-        { header: "S no.", key: "s_no", width: 20 },
-        { header: "firstName", key: "firstName", width: 20 },
-        { header: "lastName", key: "lastName", width: 20 },
-        { header: "agencyName", key: "agencyName", width: 20 },
-        { header: "developerEmail", key: "developerEmail", width: 20 },
-        {
-          header: "developerTechnologies",
-          key: "developerTechnologies",
-          width: 20,
-        },
-        {
-          header: "developerDesignation",
-          key: "developerDesignation",
-          width: 20,
-        },
-        { header: "developerRole", key: "developerRole", width: 20 },
-        {
-          header: "developerExperience",
-          key: "developerExperience",
-          width: 20,
-        },
-        {
-          header: "developerPriceRange",
-          key: "developerPriceRange",
-          width: 20,
-        },
-        { header: "expectedPrice", key: "expectedPrice", width: 20 },
-        { header: "isDeveloperActive", key: "isDeveloperActive", width: 20 },
-        {
-          header: "isDeveloperVerified",
-          key: "isDeveloperVerified",
-          width: 20,
-        },
-        {
-          header: "developerAvailability",
-          key: "developerAvailability",
-          width: 20,
-        },
-        { header: "developerDocuments", key: "developerDocuments", width: 20 },
-      ];
-      // Looping through User data
-      let counter = 1;
-      data.forEach((user) => {
-        user.s_no = counter;
-        worksheet.addRow(user); // Add data in worksheet
-        counter++;
-      });
-      // Making first line in excel bold
-      worksheet.getRow(1).eachCell((cell) => {
-        cell.font = { bold: true };
-      });
-      res.setHeader(
-        "Content-Type",
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-      );
-      res.setHeader(
-        "Content-Disposition",
-        "attachment; filename=" + `${file_name}.xlsx`
-      );
-      console.log(worksheet)
-      return workbook.xlsx.write(res).then(function () {
-        res.status(200).end();
-      });
-      // let tempFilePath = __dirname + "test.xlsx"
-      // workbook.xlsx.writeFile(tempFilePath).then(function() {
-      //     console.log('file is written');
-      //     res.sendFile(tempFilePath, function(err){
-      //         console.log('---------- error downloading file: ' + err);
-      //     });
-      // });
+
+      return res.status(200).json({success:true, data})
+     
     } catch (err) {
       return res.status(500).json({ msg: err.message });
     }
@@ -708,17 +639,24 @@ const developer = {
   setInterviewStatus: async (req, res) => {
  console.log(req.body)
     const { id, historyId, status } = req.params;
+    var feedback= req.body.feedback
 
+     if(!feedback){
+      feedback = "";
+          }
+    
     if (status) {
       await interviewScheduleModel.updateOne(
         {
           _id: mongoose.Types.ObjectId(id),
-        },
-        { $set: { status: status } }
+        },  
+        { $set: { status: status,feedback:feedback } }
       ).then(async (result) => {
         if (result.nModified > 0) {
           await interviewHistory.findOneAndUpdate({ _id: historyId, history: { $elemMatch: { _id: mongoose.Types.ObjectId(id) } } },
-            { $set: { 'history.$.status': status } }).then((re) => {
+            { $set: { 'history.$.status': status,
+                     'history.$.feedback': feedback
+           } }).then((re) => {
               return res.status(200).json({ success: true, msg: "status changed", result: re });
             }).catch((err) => {
               return res.status(500).json({ msg: "something went wrong 2", error: err });

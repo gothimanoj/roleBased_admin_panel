@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const status = ["pending", "done", "canceled","approved","rejected"];
+const status = ["pending", "done", "canceled", "approved", "rejected"];
 const interviewSchema = new mongoose.Schema(
   {
     date: { type: Date, required: true },
@@ -10,7 +10,8 @@ const interviewSchema = new mongoose.Schema(
     clientId: { type: mongoose.Types.ObjectId, ref: "Client" },
     agencyId: { type: mongoose.Types.ObjectId, ref: "Agency" },
     status: { type: String, enum: status },
-    
+    feedback: { type: String, required: true }
+
   },
   {
     timestamps: true,
