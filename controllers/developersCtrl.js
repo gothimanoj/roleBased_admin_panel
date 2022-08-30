@@ -37,7 +37,7 @@ const developer = {
         aggregation.push({
           $match: {
             developerTechnologies: {
-              $all: allId,
+              $all: allId
             },
           },
         });
@@ -442,6 +442,8 @@ const developer = {
         clientId: clientId,
         agencyId: agencyId[0].agencyId,
         status: "pending",
+        feedback:""
+
       });
       await doc.save();
       let result = await interviewScheduleModel
@@ -484,7 +486,7 @@ const developer = {
         });
         await doc2.save();
       }
-      sendEmail(adminEmail, "Interview Schedule", "testing3.hbs", obj);
+      // sendEmail(adminEmail, "Interview Schedule", "testing3.hbs", obj);
       let doc3 = new NotificationModel({
         notificationTitle:
           "congratulations your developer's interview has been scheduled",
@@ -598,7 +600,7 @@ const developer = {
 
       ).populate("developerTechnologies")
         .populate("agencyId")
-        .populate("developerRoles", "-_id roleName")
+        // .populate("developerRoles", "-_id roleName")
       res.status(200).json({ success: true, developers });
     } catch (error) {
       return res.status(500).json({ msg: error.message });
@@ -672,6 +674,15 @@ const developer = {
     } else {
       return res.status(200).json({ success: true, msg: "nothing changed" })
     }
+  },
+  getAllInterviews : async (req, res) =>{
+
+
+    let allInterviews = await interviewScheduleModel.find({},null,{sort: {date: -1}})
+
+    console.log(allInterviews);
+    return res.status(200).json(allInterviews)
+
   }
 
 };
