@@ -419,8 +419,8 @@ const developer = {
         data.push(obj);
       }
 
-      return res.status(200).json({success:true, data})
-     
+      return res.status(200).json({ success: true, data })
+
     } catch (err) {
       return res.status(500).json({ msg: err.message });
     }
@@ -442,7 +442,7 @@ const developer = {
         clientId: clientId,
         agencyId: agencyId[0].agencyId,
         status: "pending",
-        feedback:""
+        feedback: ""
 
       });
       await doc.save();
@@ -600,14 +600,14 @@ const developer = {
 
       ).populate("developerTechnologies")
         .populate("agencyId")
-        // .populate("developerRoles", "-_id roleName")
+      // .populate("developerRoles", "-_id roleName")
       res.status(200).json({ success: true, developers });
     } catch (error) {
       return res.status(500).json({ msg: error.message });
     }
   },
   getTodaysInterview: async (req, res) => {
-      console.log("osidjiivdvdeon")
+    console.log("osidjiivdvdeon")
     var today = new Date();
     let date = new Date(Date.UTC(today.getFullYear(), (today.getMonth()), today.getDate(), 0, 0, 0));
     let date2 = new Date(Date.UTC(today.getFullYear(), (today.getMonth()), today.getDate() + 1, 0, 0, 0));
@@ -625,10 +625,10 @@ const developer = {
           })
 
 
-      }else{
-        return res.status(200).json({ msg : "there is no interview Today", result})
+      } else {
+        return res.status(200).json({ msg: "there is no interview Today", result })
 
-         
+
 
       }
     }).catch((err) => {
@@ -639,26 +639,29 @@ const developer = {
 
   },
   setInterviewStatus: async (req, res) => {
- console.log(req.body)
+    console.log(req.body)
     const { id, historyId, status } = req.params;
-    var feedback= req.body.feedback
+    var feedback = req.body.feedback
 
-     if(!feedback){
+    if (!feedback) {
       feedback = "";
-          }
-    
+    }
+
     if (status) {
       await interviewScheduleModel.updateOne(
         {
           _id: mongoose.Types.ObjectId(id),
-        },  
-        { $set: { status: status,feedback:feedback } }
+        },
+        { $set: { status: status, feedback: feedback } }
       ).then(async (result) => {
         if (result.nModified > 0) {
           await interviewHistory.findOneAndUpdate({ _id: historyId, history: { $elemMatch: { _id: mongoose.Types.ObjectId(id) } } },
-            { $set: { 'history.$.status': status,
-                     'history.$.feedback': feedback
-           } }).then((re) => {
+            {
+              $set: {
+                'history.$.status': status,
+                'history.$.feedback': feedback
+              }
+            }).then((re) => {
               return res.status(200).json({ success: true, msg: "status changed", result: re });
             }).catch((err) => {
               return res.status(500).json({ msg: "something went wrong 2", error: err });
@@ -675,10 +678,10 @@ const developer = {
       return res.status(200).json({ success: true, msg: "nothing changed" })
     }
   },
-  getAllInterviews : async (req, res) =>{
+  getAllInterviews: async (req, res) => {
 
 
-    let allInterviews = await interviewScheduleModel.find({},null,{sort: {date: -1}})
+    let allInterviews = await interviewScheduleModel.find({}, null, { sort: { date: -1 } })
 
     console.log(allInterviews);
     return res.status(200).json(allInterviews)
