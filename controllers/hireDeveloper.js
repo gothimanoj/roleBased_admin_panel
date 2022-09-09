@@ -369,12 +369,12 @@ const hireDeveloper = {
         "bindu12patel@gmail.com",
         "shubham@shethink.in",
       ];
-      sendEmail(userEmail, "user creation", "testing2.hbs", {
-        requirementName: result[0].requirementName,
-        clientName: result[0].result[0].companyName,
-        adminName: req.user.firstName,
-        link: `http://test.recruitbae.sourcebae.com`,
-      });
+      // sendEmail(userEmail, "user creation", "testing2.hbs", {
+      //   requirementName: result[0].requirementName,
+      //   clientName: result[0].result[0].companyName,
+      //   adminName: req.user.firstName,
+      //   link: `http://test.recruitbae.sourcebae.com`,
+      // });
       return res.status(200).json({ success: true });
     } catch (error) {
       return res.status(500).json({ msg: error.message });
