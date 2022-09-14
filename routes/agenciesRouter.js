@@ -2,6 +2,14 @@ const router = require("express").Router();
 const agenciesCtrl = require("../controllers/agenciesCtrl");
 const auth = require("../middleware/access");
 const checkAdmin = require("../middleware/AdminAccess");
+const {live} = require("../middleware/roleAccess");
+
+
+// router.get(
+//   "/getAllAgencies/:tab/:page/:limit",
+//   live(["Admin","Manager","Associate"]),
+//   agenciesCtrl.getAllAgencies
+// );
 
 router.get(
   "/getAllAgencies/:tab/:page/:limit",

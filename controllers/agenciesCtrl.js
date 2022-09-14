@@ -8,7 +8,7 @@ const sendEmail = require("../helpers/mailHelper");
 const { countDocuments } = require("../models/agenciesModel");
 const agenciesCtrl = {
   getAllAgencies: async (req, res) => {
-    console.log(req.user);
+    console.log(req.user,"request User");
     try {
       const { page, tab, limit } = req.params;
       const options = {
@@ -16,17 +16,20 @@ const agenciesCtrl = {
         limit: +limit || 20
       };
 
+        console.log(req.user)
       if (tab == 1) {
         const agencies = Agency.aggregate([
           ...(req.user.role == "User"
-            ? [
-              {
-                $match: {
-                  assignedToUserId: mongoose.Types.ObjectId(req.user._id),
-                },
+           
+          ? [
+            {
+              $match: {
+                assignedToUserId: mongoose.Types.ObjectId(req.user._id),
               },
-            ]
-            : []),
+              
+            }
+          ]
+          : []),
           {
             $lookup: {
               from: "hiredevelopers",
@@ -100,7 +103,7 @@ const agenciesCtrl = {
               as: "developersCount",
             },
           },
-
+          
           {
             $match: {
               $or: [
@@ -146,8 +149,12 @@ const agenciesCtrl = {
               developersCount: 1
             },
           },
+          {$sort: { createdAt: -1 }}
+          
         ]);
+         
         const Agencies = await Agency.aggregatePaginate(agencies, options);
+         
         return res.status(200).json({ success: true, Agencies });
       }
 
@@ -184,12 +191,12 @@ const agenciesCtrl = {
                 incorporationDate: 1,
                 agencyTeamSize: 1,
                 createdAt: 1,
+                updatedAt: 1,
                 userEmail: 1,
               },
             },
+            { $sort: { createdAt: -1 } },
           ]);
-
-
 
           const Agencies = await Agency.aggregatePaginate(agencies, options);
           console.log(Agencies)
@@ -237,6 +244,7 @@ const agenciesCtrl = {
               userEmail: 1,
             },
           },
+          { $sort: { createdAt: -1 } },
         ]);
         const Agencies = await Agency.aggregatePaginate(agencies, options);
         return res.status(200).json({ success: true, Agencies });
@@ -276,6 +284,7 @@ const agenciesCtrl = {
               userEmail: 1,
             },
           },
+          { $sort: { createdAt: -1 } },
         ]);
         const Agencies = await Agency.aggregatePaginate(
           aggregateRejectedAgency,
@@ -341,6 +350,7 @@ const agenciesCtrl = {
               userEmail: 1,
             },
           },
+          { $sort: { createdAt: -1 } },
         ]);
         const Agencies = await Agency.aggregatePaginate(
           aggregateRejectedAgency,
@@ -380,6 +390,7 @@ const agenciesCtrl = {
                   userRequested: 0,
                 },
               },
+              {$sort: { createdAt: -1 }}
             ]
             : []),
           {
@@ -446,12 +457,14 @@ const agenciesCtrl = {
               userEmail: 1,
             },
           },
+          { $sort: { createdAt: -1 } },
         ]);
 
         const Agencies = await Agency.aggregatePaginate(
           aggregateRejectedAgency,
           options
         );
+        // console.log(Agencies)
         return res.status(200).json({ success: true, Agencies });
       }
     } catch (error) {
@@ -526,6 +539,7 @@ const agenciesCtrl = {
             projectProposals: 0,
           },
         },
+        {$sort: { createdAt: -1 }}
       ]);
 
       return res.status(200).json({ success: true, Projects });
@@ -546,7 +560,9 @@ const agenciesCtrl = {
           _id: 0,
           technologyName: 1,
         },
+        
       });
+      
       return res.status(200).json({ success: true, data });
     } catch (error) {
       return res.status(500).json({ msg: error.message });
@@ -604,6 +620,7 @@ const agenciesCtrl = {
             createdAt: 1,
           },
         },
+        { $sort: { createdAt: -1 } },
       ]);
       return res.status(200).json({ success: true, RequestForDeveloper });
     } catch (error) {
@@ -613,6 +630,7 @@ const agenciesCtrl = {
 
   getSearchAgencies: async (req, res) => {
     console.log(req.params.key)
+    // console.log(req.user)
     try {
       let Agencies = await Agency.aggregate([
         ...(req.user.role == "User"
@@ -658,6 +676,7 @@ const agenciesCtrl = {
             developersCount: { $size: "$developers" },
           },
         },
+        { $sort: { createdAt: -1 } },
       ]);
       return res.status(200).json({ success: true, Agencies });
     } catch (error) { }
@@ -681,6 +700,7 @@ const agenciesCtrl = {
 
   getAllAgenciesName: async (req, res) => {
     try {
+      console.log(req.user)
       const agencyName = await Agency.aggregate([
         ...(req.user.role == "User"
           ? [
@@ -696,7 +716,9 @@ const agenciesCtrl = {
             agencyName: 1,
           },
         },
+        { $sort: { createdAt: -1 } },
       ]);
+      // console.log(agencyName)
       return res.status(200).json({ success: true, agencyName });
     } catch (error) {
       return res.status(500).json({ msg: error.message });
@@ -730,7 +752,26 @@ const agenciesCtrl = {
       })
     }
 
-  }
+  },
+  // agenciesMSA : async(req,res) =>{
+
+  //   try {
+  //     const { id } = req.params;
+  //     const data = await Agency.findOne(id)
+  //     if(data.isAgencyVerified==true){
+
+        
+
+
+  //     } 
+      
+  //     return res.status(200).json({ success: true, data });
+  //   } catch (error) {
+  //     return res.status(500).json({ msg: error.message });
+  //   }
+
+  // }
+  
 };
 
 module.exports = agenciesCtrl;

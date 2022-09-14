@@ -2,8 +2,10 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+// const cross_Origin = require("cross-origin"); 
 const app = express();
 app.use(express.json());
+ 
 app.use(cors());
 const dbService = require("./config/mysqlConfig");
 require("./helpers/mailHelper");

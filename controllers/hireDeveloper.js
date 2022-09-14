@@ -80,7 +80,7 @@ const hireDeveloper = {
             as: "developerRolesRequired",
           },
         },
-        { $sort: { createdAt: -1 } },
+        { $sort: { createdAt: -1 }} ,
       ])
       const allRequirement = await HireDeveloper.aggregatePaginate(
         agencies,
@@ -216,6 +216,7 @@ const hireDeveloper = {
             createdAt: 1
           },
         },
+        { $sort: { createdAt: -1 } },
       ]);
 
       return res.json({ success: true, singleRequirement });
@@ -266,6 +267,7 @@ const hireDeveloper = {
             createdAt: 1
           },
         },
+ 
       ]);
 
       return res.json({ success: true, singleRequirementById });
@@ -332,7 +334,7 @@ const hireDeveloper = {
         await HireDeveloper.updateOne(
           {
             _id: mongoose.Types.ObjectId(id),
-          },
+          }, 
           { $set: { isVerifiedByAdmin: true, isVisible: true } }
         );
       } else {

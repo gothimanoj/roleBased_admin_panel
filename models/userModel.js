@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 
+ 
+
 const userSchema = new mongoose.Schema(
   {
     firstName: {
@@ -25,6 +27,7 @@ const userSchema = new mongoose.Schema(
       enum: ["Admin", "User"],
       default: "User",
     },
+     
   },
   {
     timestamps: true,

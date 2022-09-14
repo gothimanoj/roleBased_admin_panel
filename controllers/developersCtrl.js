@@ -40,6 +40,7 @@ const developer = {
               $all: allId,
             },
           },
+
         });
       }
 
@@ -95,7 +96,7 @@ const developer = {
             },
           },
         });
-      }
+      }  
 
       if (req.query.developerRole) {
         aggregation.push({
@@ -303,6 +304,7 @@ const developer = {
             lastName: 1,
           },
         },
+        { $sort: { createdAt: -1 } },
       ]);
       return res.status(200).json({ success: true, allName });
     } catch (error) {
@@ -318,6 +320,7 @@ const developer = {
             roleName: 1,
           },
         },
+        { $sort: { createdAt: -1 } },
       ]);
       return res.status(200).json({ success: true, gelAllRole });
     } catch (error) {
@@ -333,6 +336,7 @@ const developer = {
             technologyName: 1,
           },
         },
+        { $sort: { createdAt: -1 } },
       ]);
       return res.status(200).json({ success: true, getAllTech });
     } catch (error) {
@@ -430,7 +434,7 @@ const developer = {
       const { startTime, endTime, date, meetLink, clientId } = req.body;
       const { developerId } = req.params;
       let agencyId = await Developer.aggregate([
-        { $match: { _id: mongoose.Types.ObjectId(developerId) } },
+        { $match: { _id: mongoose.Types.ObjectId(developerId) } },  
         { $project: { _id: 0, agencyId: 1 } },
       ]);
       let doc = new interviewScheduleModel({
