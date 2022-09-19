@@ -423,7 +423,7 @@ const developer = {
         data.push(obj);
       }
 
-      return res.status(200).json({success:true, data})
+      return res.status(200).json({success:true,  })
      
     } catch (err) {
       return res.status(500).json({ msg: err.message });

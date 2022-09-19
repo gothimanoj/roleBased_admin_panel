@@ -6,6 +6,8 @@ const HireDeveloper = require("../models/hireDevelopersModel");
 const Developer = require("../models/developersModel");
 const sendEmail = require("../helpers/mailHelper");
 const { countDocuments } = require("../models/agenciesModel");
+const uploadFile = require("../middleware/awsS3");
+
 const agenciesCtrl = {
   getAllAgencies: async (req, res) => {
     console.log(req.user,"request User");
@@ -130,6 +132,34 @@ const agenciesCtrl = {
               ],
             },
           },
+          //Integration test to agencies acitionTo
+          {
+            $lookup: {
+              from: "developers",
+              localField: "_id",
+              foreignField: "agencyId",
+              as: "developers",
+            },
+          },
+          {
+            $lookup: {
+              from: "users",
+              let: { id: "$assignedToUserId" },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: { $eq: ["$_id", "$$id"] },
+                  },
+                },
+                {
+                  $project: {
+                    firstName: 1,
+                  },
+                },
+              ],
+              as: "assignedToUserId",
+            },
+          },//Integration test end
           {
             $project: {
               _id: 1,
@@ -146,7 +176,8 @@ const agenciesCtrl = {
               AgenciesDevelopers: 1,
               hiredevelopers: 1,
               userEmail: 1,
-              developersCount: 1
+              developersCount: 1,
+              assignedToUserId : 1,
             },
           },
           {$sort: { createdAt: -1 }}
@@ -177,6 +208,34 @@ const agenciesCtrl = {
             {
               $match: { verificationMessage: "Agency verification successful" },
             },
+            //Integration test to agencies acitionTo
+          {
+            $lookup: {
+              from: "developers",
+              localField: "_id",
+              foreignField: "agencyId",
+              as: "developers",
+            },
+          },
+          {
+            $lookup: {
+              from: "users",
+              let: { id: "$assignedToUserId" },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: { $eq: ["$_id", "$$id"] },
+                  },
+                },
+                {
+                  $project: {
+                    firstName: 1,
+                  },
+                },
+              ],
+              as: "assignedToUserId",
+            },
+          },//Integration test end
             {
               $project: {
                 _id: 1,
@@ -193,6 +252,7 @@ const agenciesCtrl = {
                 createdAt: 1,
                 updatedAt: 1,
                 userEmail: 1,
+                assignedToUserId : 1,
               },
             },
             { $sort: { createdAt: -1 } },
@@ -651,6 +711,7 @@ const agenciesCtrl = {
             ],
           },
         },
+        {$sort: { createdAt: -1 }},//serchforsortdate
         {
           $lookup: {
             from: "developers",
@@ -753,24 +814,41 @@ const agenciesCtrl = {
     }
 
   },
-  // agenciesMSA : async(req,res) =>{
+  agenciesUploadContract : async(req,res) =>{
 
-  //   try {
-  //     const { id } = req.params;
-  //     const data = await Agency.findOne(id)
-  //     if(data.isAgencyVerified==true){
-
-        
-
-
-  //     } 
+    try {
+ 
+    // console.log(req.body.location)
+      const {id} = req.params
+      await Agency.updateOne({_id:id},{$set:{ContractImage:req.body.location}});
+       
+      return res.status(200).json({ success: true, mes:" agency contract uploaded ",result:req.body.location })       
       
-  //     return res.status(200).json({ success: true, data });
-  //   } catch (error) {
-  //     return res.status(500).json({ msg: error.message });
-  //   }
+    } catch (error) {
+      return res.status(500).json({ msg: error.message });
+    }
+  },
+  deleteAgencyMSA: async (req, res) => {
+    try {
+      const deletedata = await Agency.remove({ContractImage:req.p})
+      console.log(deletedata)
+      if (deletedata) {
+        res.status(200).json({
+          message: "delete MSA file success"
+        })
+      } else {
+        res.status(400).json({
+          message: "invalid userid"
+        })
+      }
+    } catch (err) {
+      res.status(400).json({
+        message: "server not found",
+        error: err
+      })
+    }
 
-  // }
+  }
   
 };
 

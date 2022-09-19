@@ -136,6 +136,7 @@ const clientsCtrl = {
         page: +page || 0,
         limit: +limit || 20,
         select: "-password",
+        sort:{createdAt:-1}
       };
       const clients = await Client.find(
         {
@@ -146,7 +147,7 @@ const clientsCtrl = {
           ],
         },
         "-password"
-      );
+      ) 
       res.status(200).json({ success: true, clients });
     } catch (error) {
       return res.status(500).json({ msg: error.message });
