@@ -209,33 +209,33 @@ const agenciesCtrl = {
               $match: { verificationMessage: "Agency verification successful" },
             },
             //Integration test to agencies acitionTo
-          {
-            $lookup: {
-              from: "developers",
-              localField: "_id",
-              foreignField: "agencyId",
-              as: "developers",
-            },
-          },
-          {
-            $lookup: {
-              from: "users",
-              let: { id: "$assignedToUserId" },
-              pipeline: [
-                {
-                  $match: {
-                    $expr: { $eq: ["$_id", "$$id"] },
-                  },
-                },
-                {
-                  $project: {
-                    firstName: 1,
-                  },
-                },
-              ],
-              as: "assignedToUserId",
-            },
-          },//Integration test end
+          // {
+          //   $lookup: {
+          //     from: "developers",
+          //     localField: "_id",
+          //     foreignField: "agencyId",
+          //     as: "developers",
+          //   },
+          // },
+          // {
+          //   $lookup: {
+          //     from: "users",
+          //     let: { id: "$assignedToUserId" },
+          //     pipeline: [
+          //       {
+          //         $match: {
+          //           $expr: { $eq: ["$_id", "$$id"] },
+          //         },
+          //       },
+          //       {
+          //         $project: {
+          //           firstName: 1,
+          //         },
+          //       },
+          //     ],
+          //     as: "assignedToUserId",
+          //   },
+          // },//Integration test end
             {
               $project: {
                 _id: 1,
@@ -416,6 +416,7 @@ const agenciesCtrl = {
           aggregateRejectedAgency,
           options
         );
+      
         return res.status(200).json({ success: true, Agencies });
       }
 
@@ -830,7 +831,7 @@ const agenciesCtrl = {
   },
   deleteAgencyMSA: async (req, res) => {
     try {
-      const deletedata = await Agency.remove({ContractImage:req.p})
+      const deletedata = await Agency.remove({ContractImage:req.params.filename})
       console.log(deletedata)
       if (deletedata) {
         res.status(200).json({

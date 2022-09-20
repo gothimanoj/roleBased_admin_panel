@@ -28,4 +28,7 @@ router.patch(
   hireDeveloper.notificationValidation
 );
 
+router.get("/SearchRequirement/:key", auth, hireDeveloper.getSearchRequirement);
+
+
 module.exports = router;

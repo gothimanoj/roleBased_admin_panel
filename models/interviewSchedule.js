@@ -10,7 +10,7 @@ const interviewSchema = new mongoose.Schema(
     clientId: { type: mongoose.Types.ObjectId, ref: "Client" },
     agencyId: { type: mongoose.Types.ObjectId, ref: "Agency" },
     status: { type: String, enum: status },
-    feedback: { type: String, required: true }
+    feedback: { type: String}
 
   },
   {

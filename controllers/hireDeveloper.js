@@ -382,6 +382,101 @@ const hireDeveloper = {
       return res.status(500).json({ msg: error.message });
     }
   },
+
+  getSearchRequirement:async (req, res) => {
+    console.log(req.params.key)
+    // console.log(req.user)
+    try {
+      let SearchRequirement = await HireDeveloper.aggregate([
+        // {
+        //   $match: {
+        //     _id: mongoose.Types.ObjectId(id),
+        //   },
+        // },
+        {
+          $match: {
+            $or: [
+              { companyName: { $regex: req.params.key, $options: 'i' } },
+              { userName: { $regex: req.params.key, $options: 'i' } },
+              { userDesignation: { $regex: req.params.key, $options: 'i' } },
+              { userEmail: { $regex: req.params.key, $options: 'i' } },
+
+            ],
+          },
+        },
+        {$sort: { createdAt: -1 }},//serchforsortdate
+        {
+          $lookup: {
+            from: "technologies",
+            let: { technologiesId: "$developerTechnologiesRequired" },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $in: ["$_id", "$$technologiesId"],
+                  },
+                },
+              },
+              {
+                $project: {
+                  technologyName: 1,
+                  _id: 0,
+                },
+              },
+            ],
+            as: "developerTechnologiesRequired",
+          },
+        },
+        {
+          $lookup: {
+            from: "clients",
+            let: { clientId: "$clientId" },
+            pipeline: [
+              { $match: { $expr: { $eq: ["$_id", "$$clientId"] } } },
+              {
+                $project: {
+                  firstName: 1,
+                  lastName: 1,
+                  userName: 1,
+                  companyName: 1,
+                  userEmail:1,
+                  countryCode:1,
+                  userPhone:1,
+                  userDesignation:1
+                },
+              },
+            ],
+            as: "clientId",
+          },
+        },
+        {
+          $lookup: {
+            from: "developerroles",
+            let: { developerroles: "$developerRolesRequired" },
+
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $in: ["$_id", "$$developerroles"],
+                  },
+                },
+              },
+              {
+                $project: {
+                  roleName: 1
+                },
+              },
+
+            ],
+            as: "developerRolesRequired",
+          },
+        },
+        { $sort: { createdAt: -1 }} ,
+      ])
+      return res.status(200).json({ success: true, SearchRequirement });
+    } catch (error) { }
+  },
 }
 
 module.exports = hireDeveloper;

@@ -447,6 +447,7 @@ const developer = {
         agencyId: agencyId[0].agencyId,
         status: "pending",
       });
+       
       await doc.save();
       let result = await interviewScheduleModel
         .find({ developerId })
@@ -457,11 +458,14 @@ const developer = {
         })
         .populate({ path: "clientId", select: { _id: 0, companyName: 1 } })
         .populate({ path: "agencyId", select: { _id: 0, agencyName: 1 } });
+         
       let emailIds = await User.aggregate([
         { $match: { role: "Admin" } },
         { $project: { _id: 0, email: 1 } },
       ]);
+       
       let adminEmail = emailIds.map((element) => element.email);
+       
       let obj = {
         _id: result[0]._id,
         developerName:
@@ -488,7 +492,7 @@ const developer = {
         });
         await doc2.save();
       }
-      sendEmail(adminEmail, "Interview Schedule", "testing3.hbs", obj);
+      // sendEmail(adminEmail, "Interview Schedule", "testing3.hbs", obj);
       let doc3 = new NotificationModel({
         notificationTitle:
           "congratulations your developer's interview has been scheduled",
@@ -500,7 +504,8 @@ const developer = {
       await doc3.save();
       return res.status(200).json({ success: true, notification: doc3 });
     } catch (err) {
-      return res.status(500).json({ msg: err.message });
+      console.log(err)
+      return res.status(500).json({ msg: err });
     }
   },
   getInterviewHistory: async (req, res) => {
