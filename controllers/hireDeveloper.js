@@ -388,23 +388,7 @@ const hireDeveloper = {
     // console.log(req.user)
     try {
       let SearchRequirement = await HireDeveloper.aggregate([
-        // {
-        //   $match: {
-        //     _id: mongoose.Types.ObjectId(id),
-        //   },
-        // },
-        {
-          $match: {
-            $or: [
-              { companyName: { $regex: req.params.key, $options: 'i' } },
-              { userName: { $regex: req.params.key, $options: 'i' } },
-              { userDesignation: { $regex: req.params.key, $options: 'i' } },
-              { userEmail: { $regex: req.params.key, $options: 'i' } },
-
-            ],
-          },
-        },
-        {$sort: { createdAt: -1 }},//serchforsortdate
+         
         {
           $lookup: {
             from: "technologies",
@@ -432,7 +416,18 @@ const hireDeveloper = {
             from: "clients",
             let: { clientId: "$clientId" },
             pipeline: [
-              { $match: { $expr: { $eq: ["$_id", "$$clientId"] } } },
+
+              {
+                  $match: {
+                    $or: [
+                      { companyName: { $regex: req.params.key, $options: 'i' } },
+                      { userName: { $regex: req.params.key, $options: 'i' } },
+                      { userDesignation: { $regex: req.params.key, $options: 'i' } },
+                      { userEmail: { $regex: req.params.key, $options: 'i' } },
+                      { userPhone: { $regex: req.params.key, $options: 'i' } },
+                    ],
+                  },
+                },
               {
                 $project: {
                   firstName: 1,
@@ -475,8 +470,13 @@ const hireDeveloper = {
         { $sort: { createdAt: -1 }} ,
       ])
       return res.status(200).json({ success: true, SearchRequirement });
-    } catch (error) { }
+    } catch (error) { 
+      return res.status(500).json({ msg: error.message });
+    }
   },
+   
 }
 
 module.exports = hireDeveloper;
+
+ 

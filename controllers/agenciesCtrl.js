@@ -178,6 +178,7 @@ const agenciesCtrl = {
               userEmail: 1,
               developersCount: 1,
               assignedToUserId : 1,
+              ContractImage :1,
             },
           },
           {$sort: { createdAt: -1 }}
@@ -209,33 +210,33 @@ const agenciesCtrl = {
               $match: { verificationMessage: "Agency verification successful" },
             },
             //Integration test to agencies acitionTo
-          // {
-          //   $lookup: {
-          //     from: "developers",
-          //     localField: "_id",
-          //     foreignField: "agencyId",
-          //     as: "developers",
-          //   },
-          // },
-          // {
-          //   $lookup: {
-          //     from: "users",
-          //     let: { id: "$assignedToUserId" },
-          //     pipeline: [
-          //       {
-          //         $match: {
-          //           $expr: { $eq: ["$_id", "$$id"] },
-          //         },
-          //       },
-          //       {
-          //         $project: {
-          //           firstName: 1,
-          //         },
-          //       },
-          //     ],
-          //     as: "assignedToUserId",
-          //   },
-          // },//Integration test end
+          {
+            $lookup: {
+              from: "developers",
+              localField: "_id",
+              foreignField: "agencyId",
+              as: "developers",
+            },
+          },
+          {
+            $lookup: {
+              from: "users",
+              let: { id: "$assignedToUserId" },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: { $eq: ["$_id", "$$id"] },
+                  },
+                },
+                {
+                  $project: {
+                    firstName: 1,
+                  },
+                },
+              ],
+              as: "assignedToUserId",
+            },
+          },//Integration test end
             {
               $project: {
                 _id: 1,
@@ -253,6 +254,8 @@ const agenciesCtrl = {
                 updatedAt: 1,
                 userEmail: 1,
                 assignedToUserId : 1,
+                ContractImage :1,
+
               },
             },
             { $sort: { createdAt: -1 } },
@@ -822,16 +825,18 @@ const agenciesCtrl = {
     // console.log(req.body.location)
       const {id} = req.params
       await Agency.updateOne({_id:id},{$set:{ContractImage:req.body.location}});
-       
-      return res.status(200).json({ success: true, mes:" agency contract uploaded ",result:req.body.location })       
+       imgUrl = req.body.location
+      return res.status(200).json({ success: true, mes:" agency contract uploaded ",result:req.body.location } )       
       
     } catch (error) {
       return res.status(500).json({ msg: error.message });
     }
   },
+   
   deleteAgencyMSA: async (req, res) => {
     try {
-      const deletedata = await Agency.remove({ContractImage:req.params.filename})
+      const deletedata = await Agency.updateOne({ContractImage:"https://sourcebae.s3.ap-south-1.amazonaws.com/"+req.params.filename},{$set:{ContractImage:""}})
+      console.log(req.params.filename)
       console.log(deletedata)
       if (deletedata) {
         res.status(200).json({
