@@ -17,13 +17,13 @@ const checkLogin = async (req, res, next) => {
     const user = await Users.findById(_id).select("-password");
     // console.log(user)
     if (!user) {
-      console.log(res.error)
+       
       return res.status(401).json({ success: false, error: "user not found" });
     }
     req.user = user;
     next();
   } catch (error) {
-    console.log(error,"error2")
+     
     return res.status(401).json({ success: false, error: "invalid token" });
   }
 };

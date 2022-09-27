@@ -44,7 +44,7 @@ router.get("/getAgency", auth, agenciesCtrl.getAllAgenciesName);
 router.get("/verifyAgency/:value/:id", auth, agenciesCtrl.verifyAgency);
 
 router.post("/contractImg/:id",auth,upload.single("image"),uploadFile.aws,agenciesCtrl.agenciesUploadContract);
- 
+router.get("/getMSAFile/:id",auth,agenciesCtrl.getagenciesMSAFile); 
 
 //demo check agencies status
 router.delete("/contractImgDelete/:id",auth,uploadFile.awsDelete,agenciesCtrl.deleteAgencyMSA);

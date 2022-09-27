@@ -384,11 +384,19 @@ const hireDeveloper = {
   },
 
   getSearchRequirement:async (req, res) => {
-    console.log(req.params.key)
+    // console.log(req.params.key)
     // console.log(req.user)
     try {
       let SearchRequirement = await HireDeveloper.aggregate([
-         
+        ...(req.user.role == "User"
+        ? [
+            {
+              $match: {
+                assignedToUserId: mongoose.Types.ObjectId(req.user._id),
+              },
+            },
+          ]
+        : []),
         {
           $lookup: {
             from: "technologies",
