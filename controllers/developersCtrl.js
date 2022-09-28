@@ -431,7 +431,7 @@ const developer = {
   },
   setInterviewSchedule: async (req, res) => {
     try {
-      const { startTime, endTime, date, meetLink, clientId } = req.body;
+      const { startTime, endTime, date, meetLink, vendoremail, clientId } = req.body;
       const { developerId } = req.params;
       let agencyId = await Developer.aggregate([
         { $match: { _id: mongoose.Types.ObjectId(developerId) } },  
@@ -441,6 +441,7 @@ const developer = {
         date,
         startTime,
         endTime,
+        vendoremail,
         googleMeetLink: meetLink,
         developerId: developerId,
         clientId: clientId,
