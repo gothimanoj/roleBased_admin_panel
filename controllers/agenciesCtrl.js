@@ -4,8 +4,13 @@ const Project = require("../models/projectsModel");
 const mongoose = require("mongoose");
 const HireDeveloper = require("../models/hireDevelopersModel");
 const Developer = require("../models/developersModel");
+const sendEmail = require("../helpers/mailHelper");
+const { countDocuments } = require("../models/agenciesModel");
+const uploadFile = require("../middleware/awsS3");
+
 const agenciesCtrl = {
   getAllAgencies: async (req, res) => {
+    // console.log(req.user);
     try {
       const { page, tab, limit } = req.params;
       const options = {
@@ -13,6 +18,7 @@ const agenciesCtrl = {
         limit: +limit || 20,
       };
 
+      // console.log(req.user);
       if (tab == 1) {
         const agencies = Agency.aggregate([
           ...(req.user.role == "User"
@@ -76,6 +82,29 @@ const agenciesCtrl = {
             },
           },
           {
+            $lookup: {
+              from: "developers",
+              let: { id: "$_id" },
+              pipeline: [
+                { $match: { $expr: { $eq: ["$agencyId", "$$id"] } } },
+                { $sort: { updatedAt: -1 } },
+                {
+                  $addFields: {
+                    updatedAt1: "$updatedAt",
+                  },
+                },
+                {
+                  $project: {
+                    _id: 0,
+                    updatedAt: 1,
+                  },
+                },
+              ],
+              as: "developersCount",
+            },
+          },
+
+          {
             $match: {
               $or: [
                 {
@@ -101,6 +130,34 @@ const agenciesCtrl = {
               ],
             },
           },
+          //Integration test to agencies acitionTo
+          {
+            $lookup: {
+              from: "developers",
+              localField: "_id",
+              foreignField: "agencyId",
+              as: "developers",
+            },
+          },
+          {
+            $lookup: {
+              from: "users",
+              let: { id: "$assignedToUserId" },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: { $eq: ["$_id", "$$id"] },
+                  },
+                },
+                {
+                  $project: {
+                    firstName: 1,
+                  },
+                },
+              ],
+              as: "assignedToUserId",
+            },
+          }, //Integration test end
           {
             $project: {
               _id: 1,
@@ -116,51 +173,97 @@ const agenciesCtrl = {
               createdAt: 1,
               AgenciesDevelopers: 1,
               hiredevelopers: 1,
+              userEmail: 1,
+              developersCount: 1,
+              assignedToUserId: 1,
+              ContractImage: 1,
             },
           },
+          { $sort: { createdAt: -1 } },
         ]);
+
         const Agencies = await Agency.aggregatePaginate(agencies, options);
+
         return res.status(200).json({ success: true, Agencies });
       }
 
       if (tab == 2) {
-        const agencies = Agency.aggregate([
-          ...(req.user.role == "User"
-            ? [
-                {
-                  $match: {
-                    assignedToUserId: mongoose.Types.ObjectId(req.user._id),
+        // console.log(req.user);
+        try {
+          const agencies = Agency.aggregate([
+            ...(req.user.role == "User"
+              ? [
+                  {
+                    $match: {
+                      assignedToUserId: mongoose.Types.ObjectId(req.user._id),
+                    },
                   },
-                },
-              ]
-            : []),
-          {
-            $match: { isAgencyVerified: true },
-          },
-          {
-            $match: { verificationMessage: "Agency verification successful." },
-          },
-          {
-            $project: {
-              _id: 1,
-              isAgencyVerified: 1,
-              isUserEmailVerified: 1,
-              verificationMessage: 1,
-              agencyName: 1,
-              ownerName: 1,
-              agencyEmail: 1,
-              agencyPhone: 1,
-              agencyLogo: 1,
-              incorporationDate: 1,
-              agencyTeamSize: 1,
-              createdAt: 1,
+                ]
+              : []),
+            {
+              $match: { isAgencyVerified: true },
             },
-          },
-        ]);
+            {
+              $match: { verificationMessage: "Agency verification successful" },
+            },
+            //Integration test to agencies acitionTo
+            {
+              $lookup: {
+                from: "developers",
+                localField: "_id",
+                foreignField: "agencyId",
+                as: "developers",
+              },
+            },
+            {
+              $lookup: {
+                from: "users",
+                let: { id: "$assignedToUserId" },
+                pipeline: [
+                  {
+                    $match: {
+                      $expr: { $eq: ["$_id", "$$id"] },
+                    },
+                  },
+                  {
+                    $project: {
+                      firstName: 1,
+                    },
+                  },
+                ],
+                as: "assignedToUserId",
+              },
+            }, //Integration test end
+            {
+              $project: {
+                _id: 1,
+                isAgencyVerified: 1,
+                isUserEmailVerified: 1,
+                verificationMessage: 1,
+                agencyName: 1,
+                ownerName: 1,
+                agencyEmail: 1,
+                agencyPhone: 1,
+                agencyLogo: 1,
+                incorporationDate: 1,
+                agencyTeamSize: 1,
+                createdAt: 1,
+                updatedAt: 1,
+                userEmail: 1,
+                assignedToUserId: 1,
+                ContractImage: 1,
+              },
+            },
+            { $sort: { createdAt: -1 } },
+          ]);
 
-        const Agencies = await Agency.aggregatePaginate(agencies, options);
-        console.log("all VerifiedAgency");
-        return res.status(200).json({ success: true, Agencies });
+          const Agencies = await Agency.aggregatePaginate(agencies, options);
+          console.log(Agencies);
+          console.log(options);
+          return res.status(200).json({ success: true, Agencies });
+        } catch (e) {
+          console.log(e);
+        }
       }
 
       if (tab == 3) {
@@ -197,11 +300,12 @@ const agenciesCtrl = {
               incorporationDate: 1,
               agencyTeamSize: 1,
               createdAt: 1,
+              userEmail: 1,
             },
           },
+          { $sort: { createdAt: -1 } },
         ]);
         const Agencies = await Agency.aggregatePaginate(agencies, options);
-        console.log("all pendingAgency");
         return res.status(200).json({ success: true, Agencies });
       }
 
@@ -236,14 +340,15 @@ const agenciesCtrl = {
               incorporationDate: 1,
               agencyTeamSize: 1,
               createdAt: 1,
+              userEmail: 1,
             },
           },
+          { $sort: { createdAt: -1 } },
         ]);
         const Agencies = await Agency.aggregatePaginate(
           aggregateRejectedAgency,
           options
         );
-        console.log("all rejectedAgency");
         return res.status(200).json({ success: true, Agencies });
       }
 
@@ -265,25 +370,27 @@ const agenciesCtrl = {
               foreignField: "agencyId",
               as: "developers",
             },
-          },{
-            
-             $lookup: {
+          },
+          {
+            $lookup: {
               from: "users",
-             let:{id:"$assignedToUserId"},
-             pipeline:[
-               {
-                 $match:{
-                   $expr:{$eq:["$_id","$$id"]}
-                 }
-               },{
-                 $project:{
-                  firstName:1
-                 }
-               }
-             ],
+              let: { id: "$assignedToUserId" },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: { $eq: ["$_id", "$$id"] },
+                  },
+                },
+                {
+                  $project: {
+                    firstName: 1,
+                  },
+                },
+              ],
               as: "assignedToUserId",
             },
-          },
+          },         
+
           {
             $project: {
               _id: 1,
@@ -299,16 +406,44 @@ const agenciesCtrl = {
               agencyTeamSize: 1,
               createdAt: 1,
               developersCount: { $size: "$developers" },
-              assignedToUserId:1
+              assignedToUserId: 1,
+              userEmail: 1,
+                
+               
             },
-          },
+          },           
+          { $sort: { createdAt: -1 } },
         ]);
-        const Agencies = await Agency.aggregatePaginate(
+
+        var  Agencies = await Agency.aggregatePaginate(
           aggregateRejectedAgency,
           options
         );
-        return res.status(200).json({ success: true, Agencies });
-      }
+        let AgencyData = Agencies.docs
+        console.log(AgencyData.length)
+        
+       for(i=0;i<AgencyData.length;i++){ 
+         if(AgencyData[i].isAgencyVerified == true && AgencyData[i].verificationMessage == "Agency verification successful"){
+          AgencyData[i].status="Verify" 
+           // console.log(AgencyData[i]) 
+            
+         }
+         else if(AgencyData[i].isAgencyVerified == false && AgencyData[i].verificationMessage == "Agency verification is still pending by our team."){
+          AgencyData[i].status="Pending";
+           // console.log(AgencyData[i])
+            
+         }
+         else if(AgencyData[i].isAgencyVerified == false && AgencyData[i].verificationMessage == "Agency rejected."){
+          AgencyData[i].status="Rejected";
+           // console.log(AgencyData[i])
+            
+         }
+       }       
+
+         return res.status(200).json({ success: true, AgencyData });
+       
+     }
+
 
       if (tab == 8) {
         const aggregateRejectedAgency = Agency.aggregate([
@@ -341,6 +476,7 @@ const agenciesCtrl = {
                     userRequested: 0,
                   },
                 },
+                { $sort: { createdAt: -1 } },
               ]
             : []),
           {
@@ -404,14 +540,17 @@ const agenciesCtrl = {
               createdAt: 1,
               ...(req.user.role == "User" ? {} : { requestedByUser: 1 }),
               userRequested: 1,
+              userEmail: 1,
             },
           },
+          { $sort: { createdAt: -1 } },
         ]);
 
         const Agencies = await Agency.aggregatePaginate(
           aggregateRejectedAgency,
           options
         );
+        // console.log(Agencies)
         return res.status(200).json({ success: true, Agencies });
       }
     } catch (error) {
@@ -486,6 +625,7 @@ const agenciesCtrl = {
             projectProposals: 0,
           },
         },
+        { $sort: { createdAt: -1 } },
       ]);
 
       return res.status(200).json({ success: true, Projects });
@@ -507,6 +647,7 @@ const agenciesCtrl = {
           technologyName: 1,
         },
       });
+
       return res.status(200).json({ success: true, data });
     } catch (error) {
       return res.status(500).json({ msg: error.message });
@@ -564,6 +705,7 @@ const agenciesCtrl = {
             createdAt: 1,
           },
         },
+        { $sort: { createdAt: -1 } },
       ]);
       return res.status(200).json({ success: true, RequestForDeveloper });
     } catch (error) {
@@ -572,6 +714,8 @@ const agenciesCtrl = {
   },
 
   getSearchAgencies: async (req, res) => {
+    console.log(req.params.key);
+    // console.log(req.user)
     try {
       let Agencies = await Agency.aggregate([
         ...(req.user.role == "User"
@@ -585,9 +729,15 @@ const agenciesCtrl = {
           : []),
         {
           $match: {
-            agencyName: { $regex: req.params.key, $options: "i" },
+            $or: [
+              { agencyName: { $regex: req.params.key, $options: "i" } },
+              { ownerName: { $regex: req.params.key, $options: "i" } },
+              { agencyEmail: { $regex: req.params.key, $options: "i" } },
+              { assignedToUserId: { $regex: req.params.key, $options: "i" } },
+            ],
           },
         },
+        { $sort: { createdAt: -1 } }, //serchforsortdate
         {
           $lookup: {
             from: "developers",
@@ -596,6 +746,25 @@ const agenciesCtrl = {
             as: "developers",
           },
         },
+        {
+          $lookup: {
+            from: "users",
+            let: { id: "$assignedToUserId" },
+            pipeline: [
+              {
+                $match: {
+                  $expr: { $eq: ["$_id", "$$id"] },
+                },
+              },
+              {
+                $project: {
+                  firstName: 1,
+                },
+              },
+            ],
+            as: "assignedToUserId",
+          },
+        }, //Integration test end
         {
           $project: {
             _id: 1,
@@ -610,9 +779,11 @@ const agenciesCtrl = {
             incorporationDate: 1,
             agencyTeamSize: 1,
             createdAt: 1,
+            assignedToUserId: 1,
             developersCount: { $size: "$developers" },
           },
         },
+        { $sort: { createdAt: -1 } },
       ]);
       return res.status(200).json({ success: true, Agencies });
     } catch (error) {}
@@ -636,25 +807,135 @@ const agenciesCtrl = {
 
   getAllAgenciesName: async (req, res) => {
     try {
+      console.log(req.user);
       const agencyName = await Agency.aggregate([
         ...(req.user.role == "User"
-        ? [
-            {
-              $match: {
-                assignedToUserId: mongoose.Types.ObjectId(req.user._id),
+          ? [
+              {
+                $match: {
+                  assignedToUserId: mongoose.Types.ObjectId(req.user._id),
+                },
               },
-            },
-          ]
-        : []),
+            ]
+          : []),
         {
           $project: {
             agencyName: 1,
           },
         },
+        { $sort: { createdAt: -1 } },
       ]);
+      // console.log(agencyName)
       return res.status(200).json({ success: true, agencyName });
     } catch (error) {
       return res.status(500).json({ msg: error.message });
+    }
+  },
+
+  verifyAgency: async (req, res) => {
+    let { value, id } = req.params;
+    let check = parseInt(value);
+    if (check) {
+      await Agency.updateOne(
+        {
+          _id: mongoose.Types.ObjectId(id),
+        },
+        { $set: { isAgencyVerified: true } }
+      )
+        .then((result) => {
+          return res.status(200).json({ success: true, result });
+        })
+        .catch((err) => {
+          return res.status(500).json(err);
+        });
+    } else {
+      await Agency.updateOne(
+        { _id: mongoose.Types.ObjectId(id) },
+        { $set: { isAgencyVerified: false } }
+      )
+        .then((result) => {
+          return res.status(200).json({ success: true, result });
+        })
+        .catch((err) => {
+          return res.status(500).json(err);
+        });
+    }
+  },
+  agenciesUploadContract: async (req, res) => {
+    try {
+      // console.log(req.body.location)
+      const { id } = req.params;
+      await Agency.updateOne(
+        { _id: id },
+        { $set: { ContractImage: req.body.location } }
+      );
+      //  imgUrl = req.body.location
+      return res
+        .status(200)
+        .json({
+          success: true,
+          mes: " agency contract uploaded ",
+          result: req.body.location,
+        });
+    } catch (error) {
+      return res.status(500).json({ msg: error.message });
+    }
+  },
+  getagenciesMSAFile: async (req, res) => {
+    try {
+      // const { id } = req.params;
+      await Agency.findById(req.params.id, function (err, file) {
+        if (err) {
+          return res.status(500).json({ msg: err.message });
+        }
+        if (file.length > 0) {
+          console.log(file.ContractImage);
+          // console.log(file.path)
+          return res
+            .status(200)
+            .json({
+              success: true,
+              mes: " get agency contract ",
+              image: file.ContractImage,
+            });
+        } else {
+          return res
+            .status(404)
+            .json({ success: false, error: " does not MSA Upload" });
+        }
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({ msg: error.message });
+    }
+  },
+
+  deleteAgencyMSA: async (req, res) => {
+    try {
+      const deletedata = await Agency.updateOne(
+        {
+          ContractImage:
+            "https://sourcebae.s3.ap-south-1.amazonaws.com/" +
+            req.params.filename,
+        },
+        { $set: { ContractImage: "" } }
+      );
+      console.log(req.params.filename);
+      console.log(deletedata);
+      if (deletedata) {
+        res.status(200).json({
+          message: "delete MSA file success",
+        });
+      } else {
+        res.status(400).json({
+          message: "invalid userid",
+        });
+      }
+    } catch (err) {
+      res.status(400).json({
+        message: "server not found",
+        error: err,
+      });
     }
   },
 };

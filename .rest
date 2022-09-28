@@ -23,19 +23,20 @@ get http://localhost:4000/api/user/getUser
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjU1NGVjYmI2NDE5YTk3YTU4ZjIwNzMiLCJpYXQiOjE2NTEzMjAwMDl9.XP82XGPD_jd3UFH4iaSyj7pSPrRPR_t2GliCkaB67KU"
 
 ###########
-get http://localhost:3000/api/agencies/getAllAgencies/6/1/63
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjU1NGVjYmI2NDE5YTk3YTU4ZjIwNzMiLCJpYXQiOjE2NTE0OTY5NDV9.Iy3bzqIZ6-We9x-ZW_yL12ERgX88O_08pgVy2EsXtxI
+get http://localhost:4000/api/agencies/getAllAgencies/1/1/20
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjU1NGVjYmI2NDE5YTk3YTU4ZjIwNzMiLCJpYXQiOjE2NTI4MTYyMzR9.-dN5wvN4LybzSbOqEmW2c0uU3d5-KX-eFInZhyDNDR8
 
 
 ###########
 get http://13.234.120.7/backend/api/agencies/getAgencyById/618cad3666093b08653f282b
-
+  // its not working
 ###########
+
 get http://localhost:5000/api/clients/getAllClients/1/20
 
 ###########
 get http://localhost:4000/api/clients/getProjectByClientId/619c9f36ccfff254bdf702a8
-
+// done 
 
 
 ###########
@@ -47,7 +48,7 @@ get http://localhost:4000/api/clients/getProjectDetails/61a503583f3a6a18ab6b5857
 
  
 ###########
-get http://localhost:4000/api/clients/getAllRequestForDeveloper/6173e7a6c689aa6e0b74d5e8
+get http://localhost:4000/api/clients/getAllRequestForDeveloper/627a4d34a80a6147961afee4
 
 
 ###########
@@ -82,7 +83,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjU1NGVjY
 
 
 ###########
-PATCH  http://localhost:4000/api/hiredeveloper/updateSingleRequirementById/622c3a4b5a288e3e470741b4
+PATCH  http://localhost:4000/api/hiredeveloper/updateSingleRequirementById/62ab05a7b14c67ad9f2d9329
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjU1NGVjYmI2NDE5YTk3YTU4ZjIwNzMiLCJpYXQiOjE2NTA2MTE1Njh9.pK0V_z1xjlEnYI2QrJoB9zZGuxlto0YG2U64Jxzi_yQ
 Content-Type: application/json
 
@@ -193,3 +194,19 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjU1NGVjY
 ############
 GET http://localhost:4000/api/developer/getAllTech
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MjU1NGVjYmI2NDE5YTk3YTU4ZjIwNzMiLCJpYXQiOjE2NTE0OTY5NDV9.Iy3bzqIZ6-We9x-ZW_yL12ERgX88O_08pgVy2EsXtxI
+
+
+
+
+############
+POST  http://localhost:4000/api/request/newRequest?agencyId=6298af751213a51ad0d01348
+
+
+
+############
+POST  http://localhost:4000/api/request/createOrganization?agencyId=6298af751213a51ad0d01348
+
+
+
+############
+GET  http://localhost:4000/api/request/getRequest?tab=2

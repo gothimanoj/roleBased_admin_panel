@@ -4,6 +4,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const client = require("../models/clientsModel");
 const RequestFroDeveloper = require("../models/requestForDeveloper");
+const mongoose = require("mongoose");
 
 const userCtrl = {
   register: async (req, res) => {
@@ -40,12 +41,15 @@ const userCtrl = {
   getUserById: async (req, res) => {
     try {
       const allUser = await Users.aggregate([
+
         {
           $project: {
             password: 0,
           },
         },
+        {$sort: { createdAt: -1 }}
       ]);
+      // console.log(allUser)
       return res.json({ allUser });
     } catch {
       return res.status(500).json({ msg: err.message });
@@ -58,7 +62,6 @@ const userCtrl = {
       if (email) {
         user = await Users.findOne({ email });
       }
-     
       if (user) {
         const validPassword = await bcrypt.compare(
           password,
@@ -85,6 +88,7 @@ const userCtrl = {
         clientId,
         role: user.role,
         id: user._id,
+        EmailId: user.email,
       });
     } catch (error) {
       res.status(401).json({ success: false, error: error.message });
@@ -96,7 +100,7 @@ const userCtrl = {
       const newRequest = await RequestFroDeveloper.create({ userId, agencyId });
       return res.json({
         success: true,
-        newRequest
+        newRequest,
       });
     } catch (error) {
       return res.status(500).json({ msg: error.message });
@@ -104,32 +108,32 @@ const userCtrl = {
   },
   getAllRequest: async (req, res) => {
     try {
-      
       const allRequest = await RequestFroDeveloper.aggregate([
-       {
-         $lookup:{
-            from: 'agencies',
-            let :{id:"$agencyId"},
-            pipeline:[
+        {
+          $lookup: {
+            from: "agencies",
+            let: { id: "$agencyId" },
+            pipeline: [
               {
-                $match:{
-                  $expr:{$eq:["$_id","$$id"]}
-                }
-              }
+                $match: {
+                  $expr: { $eq: ["$_id", "$$id"] },
+                },
+              },
+               
             ],
-            as: 'agencyId'
-         }
-       }
+            as: "agencyId",
+          },
+        },
+         { $sort: { createdAt: -1 }}
       ]);
       return res.json({
         success: true,
-        allRequest
+        allRequest,
       });
-
     } catch (error) {
       return res.status(500).json({ msg: error.message });
     }
-  }
+  },
 };
 
 module.exports = userCtrl;
