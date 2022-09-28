@@ -10,7 +10,8 @@ const interviewSchema = new mongoose.Schema(
     clientId: { type: mongoose.Types.ObjectId, ref: "Client" },
     agencyId: { type: mongoose.Types.ObjectId, ref: "Agency" },
     status: { type: String, enum: status },
-    feedback: { type: String}
+    feedback: { type: String},
+    vendoremail:{ type: String,required: [true, "Please enter your email!"],},
 
   },
   {
