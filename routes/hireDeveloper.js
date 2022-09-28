@@ -30,5 +30,7 @@ router.patch(
 
 router.get("/SearchRequirement/:key", auth, hireDeveloper.getSearchRequirement);
 
+router.get("/RequirementByFilter",auth,hireDeveloper.getRequirementFilter)
+
 
 module.exports = router;

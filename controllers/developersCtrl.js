@@ -511,8 +511,34 @@ const developer = {
   getInterviewHistory: async (req, res) => {
     try {
       const { id } = req.params;
-      let result = await InterviewHistory.findOne({ developerId: id });
-      return res.status(200).json({ success: "true", result });
+       
+      const { page, limit } = req.params;
+      const options = {
+        page: +page || 1,
+        limit: +limit || 1,
+        sort:{createdAt:1}
+
+
+        // developerId: req.params.id
+        // sort:{history: 1}   
+      };
+      const z = Number(req.params.limit);
+     
+     const result = await   InterviewHistory.aggregate( [ { $match : {developerId: mongoose.Types.ObjectId(req.params.id)} },
+{ $unwind : "$history" } ,
+ {$limit:z} ])
+ console.log(result)
+ res.status(200).json({ success: true, result });
+
+      // console.log(result)
+      // const t = await InterviewHistory.paginate(result, options);
+
+      // const result = await InterviewHistory.findOne({ developerId: id })
+      // let result = await InterviewHistory.findOne({ developerId: id }).paginate({}, options)       
+      //  let result = await interviewHistory.paginate({}, options)
+      // let data = await InterviewHistory.paginate({}, options) 
+      // console.log(Result);
+      // return res.status(200).json({ success: "true", t });
     } catch (err) {
       return res.status(500).json({ msg: err.message });
     }
@@ -631,7 +657,7 @@ const developer = {
 
           })
 
-
+ 
       }else{
         return res.status(200).json({ msg : "there is no interview Today", result})
 
