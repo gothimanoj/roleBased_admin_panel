@@ -371,12 +371,12 @@ const hireDeveloper = {
         "bindu12patel@gmail.com",
         "shubham@shethink.in",
       ];
-      sendEmail(userEmail, "user creation", "testing2.hbs", {
-        requirementName: result[0].requirementName,
-        clientName: result[0].result[0].companyName,
-        adminName: req.user.firstName,
-        link: `http://test.recruitbae.sourcebae.com`,
-      });
+      // sendEmail(userEmail, "user creation", "testing2.hbs", {
+      //   requirementName: result[0].requirementName,
+      //   clientName: result[0].result[0].companyName,
+      //   adminName: req.user.firstName,
+      //   link: `http://test.recruitbae.sourcebae.com`,
+      // });
       return res.status(200).json({ success: true });
     } catch (error) {
       return res.status(500).json({ msg: error.message });
@@ -397,28 +397,6 @@ const hireDeveloper = {
             },
           ]
         : []),
-        {
-          $lookup: {
-            from: "technologies",
-            let: { technologiesId: "$developerTechnologiesRequired" },
-            pipeline: [
-              {
-                $match: {
-                  $expr: {
-                    $in: ["$_id", "$$technologiesId"],
-                  },
-                },
-              },
-              {
-                $project: {
-                  technologyName: 1,
-                  _id: 0,
-                },
-              },
-            ],
-            as: "developerTechnologiesRequired",
-          },
-        },
         {
           $lookup: {
             from: "clients",
@@ -454,6 +432,28 @@ const hireDeveloper = {
         },
         {
           $lookup: {
+            from: "technologies",
+            let: { technologiesId: "$developerTechnologiesRequired" },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $in: ["$_id", "$$technologiesId"],
+                  },
+                },
+              },
+              {
+                $project: {
+                  technologyName: 1,
+                  _id: 0,
+                },
+              },
+            ],
+            as: "developerTechnologiesRequired",
+          },
+        },
+        {
+          $lookup: {
             from: "developerroles",
             let: { developerroles: "$developerRolesRequired" },
 
@@ -482,6 +482,152 @@ const hireDeveloper = {
       return res.status(500).json({ msg: error.message });
     }
   },
+  getRequirementFilter: async (req, res) => {
+
+    try{
+      const { page, limit } = req.params;
+      const options = {
+        page: +page || 1,
+        limit: +limit || 20,
+      };
+      const aggregation =[];
+
+      if(req.query.companyName){
+        aggregation.push({
+          $match: {
+            _id: mongoose.Types.ObjectId(req.query.companyName),
+          },
+        });
+      }
+      if(req.query.requirementName){
+        aggregation.push({
+          $match: {
+            requirementName: req.query.requirementName,
+          },
+        });  
+      }
+      if(req.query.maxExperienceRequired && req,query.minExperienceRequired){
+        aggregation.push({
+          $match:{
+            developerExperienceRequired:{
+
+              $get: +req.query.minExperienceRequired,
+              $lt:  +req.query.maxExperienceRequired,
+            },
+          },
+        })
+      }
+      if(req.query.maxBudget && req.query.minBudget){
+        aggregation.push({  
+        $match: {
+            averageBudget: {
+              $get:+req.query.maxBudget,
+              $lt: +req.query.minBudget,
+            },
+          },
+      })
+    }
+    if(req.query.getByVisible){
+      aggregation.push({
+        $match: {
+          isVisible: req.query.getByVisible,
+        },
+      });
+    }
+    aggregation.push(
+
+      {
+        $lookup: {
+          from: "technologies",
+          let: { technologiesId: "$developerTechnologiesRequired" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $in: ["$_id", "$$technologiesId"],
+                },
+              },
+            },
+            {
+              $project: {
+                technologyName: 1,
+                _id: 0,
+              },
+            },
+          ],
+          as: "developerTechnologiesRequired",
+        },
+      },
+      {
+        $lookup: {
+          from: "clients",
+          let: { clientId: "$clientId" },
+          pipeline: [
+            { $match: { $expr: { $eq: ["$_id", "$$clientId"] } } },
+            {
+              $project: {
+                firstName: 1,
+                lastName: 1,
+                userName: 1,
+                companyName: 1,
+                userEmail:1,
+                countryCode:1,
+                userPhone:1,
+                userDesignation:1
+              },
+            },
+          ],
+          as: "clientId",
+        },
+      },
+      {
+        $lookup: {
+          from: "developerroles",
+          let: { developerroles: "$developerRolesRequired" },
+
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $in: ["$_id", "$$developerroles"],
+                },
+              },
+            },
+            {
+              $project: {
+                roleName: 1
+              },
+            },
+
+          ],
+          as: "developerRolesRequired",
+        },
+      },
+    )
+     
+    aggregation.push({
+      $sort: {
+        createdAt: -1,
+      },
+    });
+
+    const aggregatePipeline = HireDeveloper.aggregate(aggregation);
+    const getAllDeveloper = await HireDeveloper.aggregatePaginate(
+      aggregatePipeline,
+      options
+    );
+    return res.status(200).json({ success: true, getAllDeveloper });
+
+       
+       
+
+    }catch(error){
+      console.log(error)
+      return res.status(500).json({ msg: error.message });
+
+    }
+  },
+ 
    
 }
 
