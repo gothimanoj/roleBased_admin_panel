@@ -66,7 +66,7 @@ const interview = require("../models/interviewSchedule");
 const nodemailer = require("nodxemailer");
 
 // console.log("aaaaaa");
-cron.schedule("* * * * * ", async () => {
+cron.schedule("5 * * * * ", async () => {
     try {
         let date = new Date().getDate();
         let month = new Date().getMonth();
