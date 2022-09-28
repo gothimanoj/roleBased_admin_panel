@@ -17,5 +17,18 @@ router.get("/getDeploymentHistory/:developerId",auth,developerCtrl.getDeployment
 router.get("/SearchDeveloper/:key", auth, developerCtrl.getSearchDeveloper);
 router.get("/todaysInterview",auth,developerCtrl.getTodaysInterview);
 router.patch("/setInterviewStatus/:id/:historyId/:status",auth,developerCtrl.setInterviewStatus);
+router.get("/getAllInterviews",auth,developerCtrl.getAllInterviews);
 
 module.exports = router ;
+
+
+
+// router.post("/setInterviewSchedule/:developerId",auth,developerCtrl.setInterviewSchedule);
+// router.get("/getInterviewHistory/:id",auth,developerCtrl.getInterviewHistory);
+// router.get("/todaysInterview",auth,developerCtrl.getTodaysInterview);
+// router.patch("/setInterviewStatus/:id/:historyId/:status",auth,developerCtrl.setInterviewStatus);
+// router.post("/setDeveloperDeployment/:developerId", auth, developerCtrl.developerDeployment);
+// router.get("/getDeploymentHistory/:developerId",auth,developerCtrl.getDeploymentHistory);
+
+
+
