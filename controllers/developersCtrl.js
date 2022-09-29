@@ -40,6 +40,7 @@ const developer = {
               $all: allId
             },
           },
+
         });
       }
 
@@ -95,7 +96,7 @@ const developer = {
             },
           },
         });
-      }
+      }  
 
       if (req.query.developerRole) {
         aggregation.push({
@@ -303,6 +304,7 @@ const developer = {
             lastName: 1,
           },
         },
+        { $sort: { createdAt: -1 } },
       ]);
       return res.status(200).json({ success: true, allName });
     } catch (error) {
@@ -318,6 +320,7 @@ const developer = {
             roleName: 1,
           },
         },
+        { $sort: { createdAt: -1 } },
       ]);
       return res.status(200).json({ success: true, gelAllRole });
     } catch (error) {
@@ -333,6 +336,7 @@ const developer = {
             technologyName: 1,
           },
         },
+        { $sort: { createdAt: -1 } },
       ]);
       return res.status(200).json({ success: true, getAllTech });
     } catch (error) {
@@ -419,7 +423,9 @@ const developer = {
         data.push(obj);
       }
 
+
       return res.status(200).json({ success: true, data })
+
 
     } catch (err) {
       return res.status(500).json({ msg: err.message });
@@ -427,16 +433,17 @@ const developer = {
   },
   setInterviewSchedule: async (req, res) => {
     try {
-      const { startTime, endTime, date, meetLink, clientId } = req.body;
+      const { startTime, endTime, date, meetLink, vendoremail, clientId } = req.body;
       const { developerId } = req.params;
       let agencyId = await Developer.aggregate([
-        { $match: { _id: mongoose.Types.ObjectId(developerId) } },
+        { $match: { _id: mongoose.Types.ObjectId(developerId) } },  
         { $project: { _id: 0, agencyId: 1 } },
       ]);
       let doc = new interviewScheduleModel({
         date,
         startTime,
         endTime,
+        vendoremail,
         googleMeetLink: meetLink,
         developerId: developerId,
         clientId: clientId,
@@ -445,6 +452,7 @@ const developer = {
         feedback: ""
 
       });
+       
       await doc.save();
       let result = await interviewScheduleModel
         .find({ developerId })
@@ -455,11 +463,14 @@ const developer = {
         })
         .populate({ path: "clientId", select: { _id: 0, companyName: 1 } })
         .populate({ path: "agencyId", select: { _id: 0, agencyName: 1 } });
+         
       let emailIds = await User.aggregate([
         { $match: { role: "Admin" } },
         { $project: { _id: 0, email: 1 } },
       ]);
+       
       let adminEmail = emailIds.map((element) => element.email);
+       
       let obj = {
         _id: result[0]._id,
         developerName:
@@ -498,7 +509,8 @@ const developer = {
       await doc3.save();
       return res.status(200).json({ success: true, notification: doc3 });
     } catch (err) {
-      return res.status(500).json({ msg: err.message });
+      console.log(err)
+      return res.status(500).json({ msg: err });
     }
   },
   getInterviewHistory: async (req, res) => {
@@ -510,6 +522,22 @@ const developer = {
       return res.status(500).json({ msg: err.message });
     }
   },
+    //     try {
+//       const { id } = req.params;
+       
+//       const { page } = req.params;
+       
+//       const limit = Number(req.params.limit);
+     
+//      const result = await   InterviewHistory.aggregate( [ { $match : {developerId: mongoose.Types.ObjectId(req.params.id)} },
+// { $unwind : "$history" } ,
+//  {$limit:limit} ])
+// //  console.log(result)
+//  res.status(200).json({ success: true, result });
+//  } catch (err) {
+//       return res.status(500).json({ msg: err.message });
+//     }
+//   },
   developerDeployment: async (req, res) => {
     try {
       const { clientId, startDate, endDate, contractDuration } = req.body;
@@ -625,9 +653,9 @@ const developer = {
           })
 
 
-      } else {
-        return res.status(200).json({ msg: "there is no interview Today", result })
-
+ 
+      }else{
+        return res.status(200).json({ msg : "there is no interview Today", result})
 
 
       }

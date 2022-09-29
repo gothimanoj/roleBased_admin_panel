@@ -228,7 +228,10 @@ const agencySchema = new mongoose.Schema(
         assignedToUserId:{
             type: mongoose.Types.ObjectId,
             ref: "Users",
-        }
+        },
+        ContractImage: {
+            type: String,
+          },
     },
     {
         timestamps: true,

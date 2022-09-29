@@ -13,8 +13,9 @@ const clientsCtrl = {
         page: +page || 0,
         limit: +limit || 20,
         select: "-password",
+        sort:{createdAt:-1}
       };
-      const clients = await Client.paginate({}, options);
+      const clients = await Client.paginate({}, options)
       res.status(200).json({ success: true, clients });
     } catch (error) {
       return res.status(500).json({ msg: error.message });
@@ -69,6 +70,7 @@ const clientsCtrl = {
         {
           $project: { string: 0, projectDomainId: 0, projectDomainDetails: 0 },
         },
+        { $sort: { createdAt: -1 } },
       ]);
 
       return res.status(200).json({ success: true, getAllProjectOfClient });
@@ -134,6 +136,7 @@ const clientsCtrl = {
         page: +page || 0,
         limit: +limit || 20,
         select: "-password",
+        sort:{createdAt:-1}
       };
       const clients = await Client.find(
         {
@@ -144,7 +147,7 @@ const clientsCtrl = {
           ],
         },
         "-password"
-      );
+      ) 
       res.status(200).json({ success: true, clients });
     } catch (error) {
       return res.status(500).json({ msg: error.message });
@@ -152,7 +155,7 @@ const clientsCtrl = {
   },
   getClients: async (req, res) => {
     try {
-      let result = await Client.aggregate([{ $project: { companyName: 1 } }]);
+      let result = await Client.aggregate([{ $project: { companyName: 1 } },{ $sort: { createdAt: -1 } }]);
       return res.status(200).json({ success: "true", result });
     } catch (error) {
       return res.status(500).json({ msg: error.message });

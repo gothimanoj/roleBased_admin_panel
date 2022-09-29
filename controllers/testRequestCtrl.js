@@ -53,6 +53,7 @@ const testRequest = {
               userCount: { $gt: 0 },
             },
           },
+           {$sort: { createdAt: -1 }}
         ]);
         return res.json({
           success: true,
@@ -101,6 +102,7 @@ const testRequest = {
               userCount: { $gt: 0 },
             },
           },
+          {$sort: { createdAt: -1 } }
         ]);
         return res.json({
           success: true,

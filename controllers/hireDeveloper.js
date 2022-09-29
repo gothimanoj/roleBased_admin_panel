@@ -80,7 +80,7 @@ const hireDeveloper = {
             as: "developerRolesRequired",
           },
         },
-        { $sort: { createdAt: -1 } },
+        { $sort: { createdAt: -1 }} ,
       ])
       const allRequirement = await HireDeveloper.aggregatePaginate(
         agencies,
@@ -216,6 +216,7 @@ const hireDeveloper = {
             createdAt: 1
           },
         },
+        { $sort: { createdAt: -1 } },
       ]);
 
       return res.json({ success: true, singleRequirement });
@@ -266,6 +267,7 @@ const hireDeveloper = {
             createdAt: 1
           },
         },
+ 
       ]);
 
       return res.json({ success: true, singleRequirementById });
@@ -332,7 +334,7 @@ const hireDeveloper = {
         await HireDeveloper.updateOne(
           {
             _id: mongoose.Types.ObjectId(id),
-          },
+          }, 
           { $set: { isVerifiedByAdmin: true, isVisible: true } }
         );
       } else {
@@ -380,6 +382,255 @@ const hireDeveloper = {
       return res.status(500).json({ msg: error.message });
     }
   },
+
+  getSearchRequirement:async (req, res) => {
+    // console.log(req.params.key)
+    // console.log(req.user)
+    try {
+      let SearchRequirement = await HireDeveloper.aggregate([
+        ...(req.user.role == "User"
+        ? [
+            {
+              $match: {
+                assignedToUserId: mongoose.Types.ObjectId(req.user._id),
+              },
+            },
+          ]
+        : []),
+        {
+          $lookup: {
+            from: "clients",
+            let: { clientId: "$clientId" },
+            pipeline: [
+
+              {
+                  $match: {
+                    $or: [
+                      { companyName: { $regex: req.params.key, $options: 'i' } },
+                      { userName: { $regex: req.params.key, $options: 'i' } },
+                      { userDesignation: { $regex: req.params.key, $options: 'i' } },
+                      { userEmail: { $regex: req.params.key, $options: 'i' } },
+                      { userPhone: { $regex: req.params.key, $options: 'i' } },
+                    ],
+                  },
+                },
+              {
+                $project: {
+                  firstName: 1,
+                  lastName: 1,
+                  userName: 1,
+                  companyName: 1,
+                  userEmail:1,
+                  countryCode:1,
+                  userPhone:1,
+                  userDesignation:1
+                },
+              },
+            ],
+            as: "clientId",
+          },
+        },
+        {
+          $lookup: {
+            from: "technologies",
+            let: { technologiesId: "$developerTechnologiesRequired" },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $in: ["$_id", "$$technologiesId"],
+                  },
+                },
+              },
+              {
+                $project: {
+                  technologyName: 1,
+                  _id: 0,
+                },
+              },
+            ],
+            as: "developerTechnologiesRequired",
+          },
+        },
+        {
+          $lookup: {
+            from: "developerroles",
+            let: { developerroles: "$developerRolesRequired" },
+
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $in: ["$_id", "$$developerroles"],
+                  },
+                },
+              },
+              {
+                $project: {
+                  roleName: 1
+                },
+              },
+
+            ],
+            as: "developerRolesRequired",
+          },
+        },
+        { $sort: { createdAt: -1 }} ,
+      ])
+      return res.status(200).json({ success: true, SearchRequirement });
+    } catch (error) { 
+      return res.status(500).json({ msg: error.message });
+    }
+  },
+  getRequirementFilter: async (req, res) => {
+
+    try{
+      const { page, limit } = req.params;
+      const options = {
+        page: +page || 1,
+        limit: +limit || 20,
+      };
+      const aggregation =[];
+
+      if(req.query.companyName){
+        aggregation.push({
+          $match: {
+            _id: mongoose.Types.ObjectId(req.query.companyName),
+          },
+        });
+      }
+      if(req.query.requirementName){
+        aggregation.push({
+          $match: {
+            requirementName: req.query.requirementName,
+          },
+        });  
+      }
+      if(req.query.maxExperienceRequired && req,query.minExperienceRequired){
+        aggregation.push({
+          $match:{
+            developerExperienceRequired:{
+
+              $get: +req.query.minExperienceRequired,
+              $lt:  +req.query.maxExperienceRequired,
+            },
+          },
+        })
+      }
+      if(req.query.maxBudget && req.query.minBudget){
+        aggregation.push({  
+        $match: {
+            averageBudget: {
+              $get:+req.query.maxBudget,
+              $lt: +req.query.minBudget,
+            },
+          },
+      })
+    }
+    if(req.query.getByVisible){
+      aggregation.push({
+        $match: {
+          isVisible: req.query.getByVisible,
+        },
+      });
+    }
+    aggregation.push(
+
+      {
+        $lookup: {
+          from: "technologies",
+          let: { technologiesId: "$developerTechnologiesRequired" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $in: ["$_id", "$$technologiesId"],
+                },
+              },
+            },
+            {
+              $project: {
+                technologyName: 1,
+                _id: 0,
+              },
+            },
+          ],
+          as: "developerTechnologiesRequired",
+        },
+      },
+      {
+        $lookup: {
+          from: "clients",
+          let: { clientId: "$clientId" },
+          pipeline: [
+            { $match: { $expr: { $eq: ["$_id", "$$clientId"] } } },
+            {
+              $project: {
+                firstName: 1,
+                lastName: 1,
+                userName: 1,
+                companyName: 1,
+                userEmail:1,
+                countryCode:1,
+                userPhone:1,
+                userDesignation:1
+              },
+            },
+          ],
+          as: "clientId",
+        },
+      },
+      {
+        $lookup: {
+          from: "developerroles",
+          let: { developerroles: "$developerRolesRequired" },
+
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $in: ["$_id", "$$developerroles"],
+                },
+              },
+            },
+            {
+              $project: {
+                roleName: 1
+              },
+            },
+
+          ],
+          as: "developerRolesRequired",
+        },
+      },
+    )
+     
+    aggregation.push({
+      $sort: {
+        createdAt: -1,
+      },
+    });
+
+    const aggregatePipeline = HireDeveloper.aggregate(aggregation);
+    const getAllDeveloper = await HireDeveloper.aggregatePaginate(
+      aggregatePipeline,
+      options
+    );
+    return res.status(200).json({ success: true, getAllDeveloper });
+
+       
+       
+
+    }catch(error){
+      console.log(error)
+      return res.status(500).json({ msg: error.message });
+
+    }
+  },
+ 
+   
 }
 
 module.exports = hireDeveloper;
+
+ 
