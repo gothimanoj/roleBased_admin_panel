@@ -616,9 +616,7 @@ const hireDeveloper = {
       aggregatePipeline,
       options
     );
-    return res.status(200).json({ success: true, getAllDeveloper });
-
-       
+    return res.status(200).json({ success: true, getAllDeveloper });      
        
 
     }catch(error){
@@ -627,6 +625,7 @@ const hireDeveloper = {
 
     }
   },
+   
  
    
 }

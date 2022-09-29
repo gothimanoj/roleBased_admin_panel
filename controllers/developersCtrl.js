@@ -514,30 +514,32 @@ const developer = {
     }
   },
   getInterviewHistory: async (req, res) => {
-    try {
-      const { id } = req.params;
-      let result = await InterviewHistory.findOne({ developerId: id });
-      return res.status(200).json({ success: "true", result });
-    } catch (err) {
+  //   try {
+  //     const { id } = req.params;
+  //     let result = await InterviewHistory.findOne({ developerId: id });
+  //     return res.status(200).json({ success: "true", result });
+  //   } catch (err) {
+  //     return res.status(500).json({ msg: err.message });
+  //   }
+  // },
+        try {
+      const { page } = req.params;
+       const options = {
+        page: +page || 0,
+        // limit: +limit || 20,
+        
+      } 
+      const limit = Number(req.params.limit) || 20
+     
+     const result = await   InterviewHistory.aggregate( [ { $match : {developerId: mongoose.Types.ObjectId(req.params.id)} },
+{ $unwind : "$history" } ,
+{$limit:limit}])
+ console.log(result)
+ res.status(200).json({ success: true, options,result });
+ } catch (err) {
       return res.status(500).json({ msg: err.message });
     }
   },
-    //     try {
-//       const { id } = req.params;
-       
-//       const { page } = req.params;
-       
-//       const limit = Number(req.params.limit);
-     
-//      const result = await   InterviewHistory.aggregate( [ { $match : {developerId: mongoose.Types.ObjectId(req.params.id)} },
-// { $unwind : "$history" } ,
-//  {$limit:limit} ])
-// //  console.log(result)
-//  res.status(200).json({ success: true, result });
-//  } catch (err) {
-//       return res.status(500).json({ msg: err.message });
-//     }
-//   },
   developerDeployment: async (req, res) => {
     try {
       const { clientId, startDate, endDate, contractDuration } = req.body;
@@ -629,7 +631,7 @@ const developer = {
       ).populate("developerTechnologies")
         .populate("agencyId")
       // .populate("developerRoles", "-_id roleName")
-      res.status(200).json({ success: true, developers });
+      res.status(200).json({ success: true, developers, options });
     } catch (error) {
       return res.status(500).json({ msg: error.message });
     }
@@ -651,8 +653,6 @@ const developer = {
             return res.status(500).json({ success: false, error: err });
 
           })
-
-
  
       }else{
         return res.status(200).json({ msg : "there is no interview Today", result})

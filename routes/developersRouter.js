@@ -11,7 +11,7 @@ router.patch("/updateSingleDeveloper/:id",auth, developerCtrl.updateSingleDevelo
 router.get('/getAllTech',auth,developerCtrl.getAllTech);
 router.get('/getSpecificDevelopers',auth,developerCtrl.getSpecificDevelopers);
 router.post("/setInterviewSchedule/:developerId",auth,developerCtrl.setInterviewSchedule);
-router.get("/getInterviewHistory/:id",auth,developerCtrl.getInterviewHistory);//page limit route added
+router.get("/getInterviewHistory/:id/:page/:limit",auth,developerCtrl.getInterviewHistory);//page limit route added
 router.post("/setDeveloperDeployment/:developerId", auth, developerCtrl.developerDeployment);
 router.get("/getDeploymentHistory/:developerId",auth,developerCtrl.getDeploymentHistory);
 router.get("/SearchDeveloper/:key", auth, developerCtrl.getSearchDeveloper);
