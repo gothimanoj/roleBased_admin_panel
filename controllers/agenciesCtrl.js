@@ -389,8 +389,7 @@ const agenciesCtrl = {
               ],
               as: "assignedToUserId",
             },
-          },         
-
+          }, 
           {
             $project: {
               _id: 1,
@@ -419,28 +418,28 @@ const agenciesCtrl = {
           aggregateRejectedAgency,
           options
         );
-        let AgencyData = Agencies.docs
-        console.log(AgencyData.length)
+      //   let Agencies = agenciesDoc.docs
+      //   console.log(Agencies.length)
         
-       for(i=0;i<AgencyData.length;i++){ 
-         if(AgencyData[i].isAgencyVerified == true && AgencyData[i].verificationMessage == "Agency verification successful"){
-          AgencyData[i].status="Verify" 
-           // console.log(AgencyData[i]) 
+      //  for(i=0;i<Agencies.length;i++){ 
+      //    if(Agencies[i].isAgencyVerified == true && Agencies[i].verificationMessage == "Agency verification successful"){
+      //     Agencies[i].status="Verify" 
+      //      // console.log(AgencyData[i]) 
             
-         }
-         else if(AgencyData[i].isAgencyVerified == false && AgencyData[i].verificationMessage == "Agency verification is still pending by our team."){
-          AgencyData[i].status="Pending";
-           // console.log(AgencyData[i])
+      //    }
+      //    else if(Agencies[i].isAgencyVerified == false && Agencies[i].verificationMessage == "Agency verification is still pending by our team."){
+      //     Agencies[i].status="Pending";
+      //      // console.log(AgencyData[i])
             
-         }
-         else if(AgencyData[i].isAgencyVerified == false && AgencyData[i].verificationMessage == "Agency rejected."){
-          AgencyData[i].status="Rejected";
-           // console.log(AgencyData[i])
+      //    }
+      //    else if(Agencies[i].isAgencyVerified == false && Agencies[i].verificationMessage == "Agency rejected."){
+      //     Agencies[i].status="Rejected";
+      //      // console.log(AgencyData[i])
             
-         }
-       }       
+      //    }
+      //  }       
 
-         return res.status(200).json({ success: true, AgencyData });
+         return res.status(200).json({ success: true, Agencies });
        
      }
 

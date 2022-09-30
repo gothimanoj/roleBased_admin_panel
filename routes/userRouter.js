@@ -5,7 +5,7 @@ const AdminAccess = require("../middleware/AdminAccess")
 const upload = require("../middleware/multer");
 const auth = require("../middleware/access");
 const {live} = require("../middleware/roleAccess");
-router.post("/register", upload.single("image"), userCtrl.register);
+router.post("/register",auth,upload.single("image"), userCtrl.register);
 router.get("/getUser", auth, userCtrl.getUserById);
 // router.get("/getUser", live(["Admin","Manager","Associate"]),userCtrl.getUserById);
 
