@@ -389,8 +389,41 @@ const agenciesCtrl = {
               ],
               as: "assignedToUserId",
             },
-          },         
-
+          },  //active Agencies status Added
+          {
+            $lookup:{
+              from: "hiredevelopers",
+             let :{id:"$_id"},
+             pipeline:[
+               {
+                 $unwind:{
+                   path: "$developersShared"
+                 }
+               },
+               {
+                 $addFields:{
+                   agency:"$developersShared.agencyId"
+                 }
+               }
+               ],
+              as: "result"
+            }
+          },
+          {
+            $addFields:{
+              newField:{
+                $filter: {
+                 input:"$result" ,
+                 as: "num",
+                 cond: {
+                 
+                    $eq:["$_id","$$num.agency"]
+                  
+                 }
+                }
+              }
+            }
+          }, //Active status field End
           {
             $project: {
               _id: 1,
@@ -408,6 +441,7 @@ const agenciesCtrl = {
               developersCount: { $size: "$developers" },
               assignedToUserId: 1,
               userEmail: 1,
+               
                 
                
             },
@@ -419,28 +453,8 @@ const agenciesCtrl = {
           aggregateRejectedAgency,
           options
         );
-        let AgencyData = Agencies.docs
-        console.log(AgencyData.length)
-        
-       for(i=0;i<AgencyData.length;i++){ 
-         if(AgencyData[i].isAgencyVerified == true && AgencyData[i].verificationMessage == "Agency verification successful"){
-          AgencyData[i].status="Verify" 
-           // console.log(AgencyData[i]) 
-            
-         }
-         else if(AgencyData[i].isAgencyVerified == false && AgencyData[i].verificationMessage == "Agency verification is still pending by our team."){
-          AgencyData[i].status="Pending";
-           // console.log(AgencyData[i])
-            
-         }
-         else if(AgencyData[i].isAgencyVerified == false && AgencyData[i].verificationMessage == "Agency rejected."){
-          AgencyData[i].status="Rejected";
-           // console.log(AgencyData[i])
-            
-         }
-       }       
-
-         return res.status(200).json({ success: true, AgencyData });
+       
+         return res.status(200).json({ success: true, Agencies });
        
      }
 

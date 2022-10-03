@@ -5,7 +5,8 @@ const AdminAccess = require("../middleware/AdminAccess")
 const upload = require("../middleware/multer");
 const auth = require("../middleware/access");
 const {live} = require("../middleware/roleAccess");
-router.post("/register", upload.single("image"), userCtrl.register);
+
+router.post("/register",auth,upload.single("image"), userCtrl.register);
 router.get("/getUser", auth, userCtrl.getUserById);
 // router.get("/getUser", live(["Admin","Manager","Associate"]),userCtrl.getUserById);
 
@@ -18,6 +19,9 @@ router.get("/getAllRequest", userCtrl.getAllRequest);
 //AdminRoleRouters
 router.post("/role",AdminAccess,upload.single("image"),roleCtrl.createRole);
 router.get("/getRole",AdminAccess,roleCtrl.getRoleAdmin);
+
+//get StatusError Api
+router.get("/geterrorStatus",auth,userCtrl.getErrorStatus);
 
 module.exports = router;
 
