@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const client = require("../models/clientsModel");
 const RequestFroDeveloper = require("../models/requestForDeveloper");
 const mongoose = require("mongoose");
+const errorStatus = require("../models/errorsStatusModel") //error status get Api
 
 const userCtrl = {
   register: async (req, res) => {
@@ -134,6 +135,24 @@ const userCtrl = {
       return res.status(500).json({ msg: error.message });
     }
   },
+
+  getErrorStatus:async(req,res)=>{
+    try{
+           const allStatus = await errorStatus.aggregate([
+
+            {
+              $project: {
+                _id: 0,
+              },
+            },
+          ]);
+            return res.json({ allStatus });
+
+    }catch(error){
+        res.status(401).json({ success: false, error: error.message });
+
+    }
+},
 };
 
 module.exports = userCtrl;
