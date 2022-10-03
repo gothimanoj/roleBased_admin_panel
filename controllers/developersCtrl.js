@@ -534,7 +534,7 @@ const developer = {
      const result = await   InterviewHistory.aggregate( [ { $match : {developerId: mongoose.Types.ObjectId(req.params.id)} },
 { $unwind : "$history" } ,
 {$limit:limit}])
- console.log(result)
+//  console.log(result)
  res.status(200).json({ success: true, options,result });
  } catch (err) {
       return res.status(500).json({ msg: err.message });

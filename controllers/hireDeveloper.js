@@ -429,52 +429,7 @@ const hireDeveloper = {
             ],
             as: "clientId",
           },
-        },
-        {
-          $lookup: {
-            from: "technologies",
-            let: { technologiesId: "$developerTechnologiesRequired" },
-            pipeline: [
-              {
-                $match: {
-                  $expr: {
-                    $in: ["$_id", "$$technologiesId"],
-                  },
-                },
-              },
-              {
-                $project: {
-                  technologyName: 1,
-                  _id: 0,
-                },
-              },
-            ],
-            as: "developerTechnologiesRequired",
-          },
-        },
-        {
-          $lookup: {
-            from: "developerroles",
-            let: { developerroles: "$developerRolesRequired" },
-
-            pipeline: [
-              {
-                $match: {
-                  $expr: {
-                    $in: ["$_id", "$$developerroles"],
-                  },
-                },
-              },
-              {
-                $project: {
-                  roleName: 1
-                },
-              },
-
-            ],
-            as: "developerRolesRequired",
-          },
-        },
+        },         
         { $sort: { createdAt: -1 }} ,
       ])
       return res.status(200).json({ success: true, SearchRequirement });
